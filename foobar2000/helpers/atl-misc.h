@@ -1,7 +1,7 @@
 #pragma once
 
 #include "win32_misc.h"
-#include "../../libPPUI/WTL-PP.h"
+#include <libPPUI/WTL-PP.h>
 #include <utility>
 
 class CMenuSelectionReceiver : public CWindowImpl<CMenuSelectionReceiver> {

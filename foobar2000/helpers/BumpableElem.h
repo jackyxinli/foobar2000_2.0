@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../libPPUI/CFlashWindow.h"
+#include <libPPUI/CFlashWindow.h>
 #include "atl-misc.h"
 
 #include <utility>

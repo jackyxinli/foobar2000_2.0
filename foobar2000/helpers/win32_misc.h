@@ -3,8 +3,8 @@
 #ifdef _WIN32
 
 
-#include "../../libPPUI/win32_op.h"
-#include "../../libPPUI/win32_utility.h"
+#include <libPPUI/win32_op.h>
+#include <libPPUI/win32_utility.h>
 
 
 class mutexScope {
