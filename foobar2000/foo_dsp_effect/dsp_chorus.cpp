@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "../helpers/foobar2000+atl.h"
+#include "../helpers/DarkMode.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/atl-misc.h"// ui_element_impl
@@ -291,6 +292,7 @@ namespace {
 		END_MSG_MAP()
 
 	private:
+		fb2k::CDarkModeHooks m_hooks;
 
 
 		void Reset(float drywet, float lfo_freq, float depth_ms, float delay_ms)
@@ -435,6 +437,8 @@ namespace {
 				slider_drywet.SetPos((double)(100 * drywet));
 				RefreshLabel(delay_ms, depth_ms, lfo_freq, drywet);
 			}
+
+			m_hooks.AddDialogWithControls(m_hWnd);
 
 			return TRUE;
 		}
@@ -836,11 +840,14 @@ namespace {
 			m_ownEchoUpdate = false;
 
 			ApplySettings();
+
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return FALSE;
 		}
 
 
 		uint32_t shit;
+		fb2k::CDarkModeHooks m_hooks;
 
 		void RefreshLabel(float delay_ms, float depth_ms, float lfo_freq, float drywet)
 		{

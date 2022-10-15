@@ -1,6 +1,7 @@
 
 #define _USE_MATH_DEFINES
 #include "../helpers/foobar2000+atl.h"
+#include "../helpers/DarkMode.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
@@ -9,6 +10,39 @@
 
 #include <vector>
 namespace {
+
+	static double clamp_ml(double x, double upper, double lower)
+	{
+		return min(upper, max(x, lower));
+	}
+
+	class CEditMod : public CWindowImpl<CEditMod, CEdit >
+	{
+	public:
+		BEGIN_MSG_MAP(CEditMod)
+			MESSAGE_HANDLER(WM_CHAR, OnChar)
+		END_MSG_MAP()
+
+		CEditMod(HWND hWnd = NULL) { }
+		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			switch (wParam)
+			{
+			case '\r': //Carriage return
+				::PostMessage(m_parent, WM_USER, 0x1988, 0L);
+				return 0;
+				break;
+			}
+			return DefWindowProc(uMsg, wParam, lParam);
+		}
+		void AttachToDlgItem(HWND parent)
+		{
+			m_parent = parent;
+		}
+	private:
+		UINT m_dlgItem;
+		HWND m_parent;
+	};
 
 	const float BASE_DELAY_SEC = 0.002; // 2 ms
 	const float VIBRATO_FREQUENCY_DEFAULT_HZ = 2;
@@ -258,6 +292,7 @@ namespace {
 		END_MSG_MAP()
 
 	private:
+		fb2k::CDarkModeHooks m_hooks;
 		BOOL OnInitDialog(CWindow, LPARAM)
 		{
 			slider_freq = GetDlgItem(IDC_VIBRATOFREQ);
@@ -271,6 +306,7 @@ namespace {
 				slider_depth.SetPos((double)(100 * depth));
 				RefreshLabel(freq, depth);
 			}
+			m_hooks.AddDialogWithControls(m_hWnd);
 
 			return TRUE;
 		}
@@ -400,6 +436,7 @@ namespace {
 		}
 
 	private:
+		fb2k::CDarkModeHooks m_hooks;
 		void SetEchoEnabled(bool state) { m_buttonEchoEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsEchoEnabled() { return m_buttonEchoEnabled == NULL || m_buttonEchoEnabled.GetCheck() == BST_CHECKED; }
 
@@ -520,6 +557,7 @@ namespace {
 			m_ownEchoUpdate = false;
 
 			ApplySettings();
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return TRUE;
 		}
 

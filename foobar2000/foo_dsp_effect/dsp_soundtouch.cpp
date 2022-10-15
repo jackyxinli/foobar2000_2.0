@@ -7,8 +7,13 @@
 #include "../../../3rdparty-deps/rubberband/rubberband/RubberBandStretcher.h"
 #include "circular_buffer.h"
 #include "dsp_guids.h"
+#include "../helpers/DarkMode.h"
 
 #include <memory>
+
+namespace {
+
+
 using namespace soundtouch;
 using namespace RubberBand;
 
@@ -1365,6 +1370,7 @@ public:
 		return ret;
 	}
 private:
+	fb2k::CDarkModeHooks m_hooks;
 
 	void OnChange1(UINT scrollID, int pos, CWindow window)
 	{
@@ -1787,6 +1793,8 @@ private:
 		m_buttonRateEnabled = GetDlgItem(IDC_PITCHENABLED_UI3);
 		slider_rate.SetRange(0, 15000);
 
+		m_hooks.AddDialogWithControls(m_hWnd);
+
 		ApplySettings();
 
 		return FALSE;
@@ -1827,3 +1835,6 @@ static service_factory_single_t<myElem2> g_myElemFactory2;
 static dsp_factory_t<dsp_tempo> g_dsp_tempo_factory;
 static dsp_factory_t<dsp_pitch> g_dsp_pitch_factory;
 static dsp_factory_t<dsp_rate> g_dsp_rate_factory;
+
+}
+

@@ -1,8 +1,44 @@
 #include "../helpers/foobar2000+atl.h"
+#include "../helpers/DarkMode.h"
 #include "../helpers/BumpableElem.h"
 #include "resource.h"
 #include "Phaser.h"
 #include "dsp_guids.h"
+
+namespace {
+	static double clamp_ml(double x, double upper, double lower)
+	{
+		return min(upper, max(x, lower));
+	}
+
+	class CEditMod : public CWindowImpl<CEditMod, CEdit >
+	{
+	public:
+		BEGIN_MSG_MAP(CEditMod)
+			MESSAGE_HANDLER(WM_CHAR, OnChar)
+		END_MSG_MAP()
+
+		CEditMod(HWND hWnd = NULL) { }
+		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			switch (wParam)
+			{
+			case '\r': //Carriage return
+				::PostMessage(m_parent, WM_USER, 0x1988, 0L);
+				return 0;
+				break;
+			}
+			return DefWindowProc(uMsg, wParam, lParam);
+		}
+		void AttachToDlgItem(HWND parent)
+		{
+			m_parent = parent;
+		}
+	private:
+		UINT m_dlgItem;
+		HWND m_parent;
+	};
+
 
 static void RunConfigPopup(const dsp_preset & p_data, HWND p_parent, dsp_preset_edit_callback & p_callback);
 class dsp_phaser : public dsp_impl_base
@@ -220,6 +256,7 @@ public:
 	}
 
 private:
+	fb2k::CDarkModeHooks m_hooks;
 	void SetPhaserEnabled(bool state) { m_buttonPhaserEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 	bool IsPhaserEnabled() { return m_buttonPhaserEnabled == NULL || m_buttonPhaserEnabled.GetCheck() == BST_CHECKED; }
 
@@ -354,6 +391,7 @@ private:
 		m_ownPhaserUpdate = false;
 
 		ApplySettings();
+		m_hooks.AddDialogWithControls(m_hWnd);
 		return TRUE;
 	}
 
@@ -472,6 +510,7 @@ public:
 	END_MSG_MAP()
 
 private:
+	fb2k::CDarkModeHooks m_hooks;
 	void DSPConfigChange(dsp_chain_config const & cfg)
 	{
 		if (m_hWnd != NULL) {
@@ -521,6 +560,7 @@ private:
 			RefreshLabel(freq, startphase, fb, depth, stages, drywet);
 
 		}
+		m_hooks.AddDialogWithControls(m_hWnd);
 
 		return TRUE;
 	}
@@ -596,3 +636,5 @@ static void RunConfigPopup(const dsp_preset & p_data, HWND p_parent, dsp_preset_
 }
 
 static dsp_factory_t<dsp_phaser> g_dsp_phaser_factory;
+
+}

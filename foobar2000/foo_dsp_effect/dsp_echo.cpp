@@ -1,11 +1,45 @@
 #define MYVERSION "0.6"
 #include "../helpers/foobar2000+atl.h"
+#include "../helpers/DarkMode.h"
 #include "../helpers/BumpableElem.h"
 #include "resource.h"
 #include "echo.h"
 #include "dsp_guids.h"
 
 namespace {
+
+	static double clamp_ml(double x, double upper, double lower)
+	{
+		return min(upper, max(x, lower));
+	}
+
+	class CEditMod : public CWindowImpl<CEditMod, CEdit >
+	{
+	public:
+		BEGIN_MSG_MAP(CEditMod)
+			MESSAGE_HANDLER(WM_CHAR, OnChar)
+		END_MSG_MAP()
+
+		CEditMod(HWND hWnd = NULL) { }
+		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			switch (wParam)
+			{
+			case '\r': //Carriage return
+				::PostMessage(m_parent, WM_USER, 0x1988, 0L);
+				return 0;
+				break;
+			}
+			return DefWindowProc(uMsg, wParam, lParam);
+		}
+		void AttachToDlgItem(HWND parent)
+		{
+			m_parent = parent;
+		}
+	private:
+		UINT m_dlgItem;
+		HWND m_parent;
+	};
 
 	static void RunDSPConfigPopup(const dsp_preset & p_data, HWND p_parent, dsp_preset_edit_callback & p_callback);
 
@@ -277,6 +311,42 @@ namespace {
 
 		}
 
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			dsp_preset_impl preset;
+			CString text, text2, text3, text4;
+			delay_edit.GetWindowText(text);
+			float delay2 = _ttof(text);
+			if (delay_s != text)
+			{
+				ms = delay2;
+				preset_changed = true;
+			}
+
+			vol_edit.GetWindowText(text2);
+			float depth2 = _ttof(text2);
+			if (vol_s != text2)
+			{
+				preset_changed = true;
+				amp = (depth2 / 100 * 256);
+				amp = depth2;
+			}
+
+
+			feed_edit.GetWindowText(text3);
+			float lfo = _ttof(text3);
+			if (feed_s != text3)
+			{
+				preset_changed = true;
+				feedback = (lfo / 100 * 256);
+			}
+
+			if (preset_changed)
+				ApplySettings();
+
+		}
+
 
 		void GetConfig()
 		{
@@ -294,9 +364,7 @@ namespace {
 			m_slider_ms.SetPos(pfc::clip_t<t_int32>(ms, MSRangeMin, MSRangeMax) - MSRangeMin);
 			m_slider_amp.SetPos(pfc::clip_t<t_int32>(amp, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
 			m_slider_fb.SetPos(pfc::clip_t<t_int32>(feedback, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
-
 			RefreshLabel(ms, amp, feedback);
-
 		}
 
 		BOOL OnInitDialog(CWindow, LPARAM)
@@ -315,25 +383,48 @@ namespace {
 			m_buttonEchoEnabled = GetDlgItem(IDC_ECHOENABLED);
 			m_ownEchoUpdate = false;
 
+			delay_edit.AttachToDlgItem(m_hWnd);
+			delay_edit.SubclassWindow(GetDlgItem(IDC_EDITECHODELAYELEM));
+			vol_edit.AttachToDlgItem(m_hWnd);
+			vol_edit.SubclassWindow(GetDlgItem(IDC_EDITECHOVOLELEM));
+			feed_edit.AttachToDlgItem(m_hWnd);
+			feed_edit.SubclassWindow(GetDlgItem(IDC_EDITECHOFEEDELEM));
+
 			ApplySettings();
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return TRUE;
 		}
 
 		void RefreshLabel(int ms, int amp, int feedback)
 		{
-			pfc::string_formatter msg; msg << "Delay time: " << pfc::format_int(ms) << " ms";
-			::uSetDlgItemText(*this, IDC_SLIDER_LABEL_MS1, msg);
-			msg.reset(); msg << "Echo volume: " << pfc::format_int(amp * 100 / 256) << "%";
-			::uSetDlgItemText(*this, IDC_SLIDER_LABEL_AMP1, msg);
-			msg.reset(); msg << "Echo feedback: " << pfc::format_int(feedback * 100 / 256) << "%";
-			::uSetDlgItemText(*this, IDC_SLIDER_LABEL_FB1, msg);
+			CString sWindowText;
+			pfc::string_formatter msg;
+			msg << pfc::format_int(ms);
+			sWindowText = msg.c_str();
+			delay_s = sWindowText;
+			delay_edit.SetWindowText(sWindowText);
+			msg.reset();
+			
+			msg << pfc::format_int(amp * 100 / 256);
+			sWindowText = msg.c_str();
+			vol_s = sWindowText;
+			vol_edit.SetWindowText(sWindowText);
+			msg.reset();
+			msg << pfc::format_int(feedback * 100 / 256);
+			sWindowText = msg.c_str();
+			feed_s = sWindowText;
+			feed_edit.SetWindowText(sWindowText);
 		}
-
+		fb2k::CDarkModeHooks m_hooks;
 		bool echo_enabled;
 		int ms, amp, feedback;
 		CTrackBarCtrl m_slider_ms, m_slider_amp, m_slider_fb;
 		CButton m_buttonEchoEnabled;
 		bool m_ownEchoUpdate;
+
+
+		CEditMod delay_edit, vol_edit, feed_edit;
+		CString delay_s, vol_s, feed_s;
 
 		static uint32_t parseConfig(ui_element_config::ptr cfg) {
 			return 1;
@@ -411,6 +502,42 @@ namespace {
 			}
 		}
 
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			dsp_preset_impl preset;
+			CString text, text2, text3, text4;
+			delay_edit.GetWindowText(text);
+			float delay2 = _ttof(text);
+			if (delay_s != text)
+			{
+				ms = delay2;
+				preset_changed = true;
+			}
+
+			vol_edit.GetWindowText(text2);
+			float depth2 = _ttof(text2);
+			if (vol_s != text2)
+			{
+				preset_changed = true;
+				amp = (depth2 / 100 * 256);
+				amp = depth2;
+			}
+
+
+			feed_edit.GetWindowText(text3);
+			float lfo = _ttof(text3);
+			if (feed_s != text3)
+			{
+				preset_changed = true;
+				feedback = (lfo / 100 * 256);
+			}
+
+			if (preset_changed)
+				ApplySettings();
+		}
+
+
 		void ApplySettings()
 		{
 			dsp_preset_impl preset2;
@@ -435,6 +562,13 @@ namespace {
 			m_slider_fb = GetDlgItem(IDC_SLIDER_FB);
 			m_slider_fb.SetRange(0, AmpRangeTotal);
 
+			delay_edit.AttachToDlgItem(m_hWnd);
+			delay_edit.SubclassWindow(GetDlgItem(IDC_EDITECHODELAY));
+			vol_edit.AttachToDlgItem(m_hWnd);
+			vol_edit.SubclassWindow(GetDlgItem(IDC_EDITECHOVOL));
+			feed_edit.AttachToDlgItem(m_hWnd);
+			feed_edit.SubclassWindow(GetDlgItem(IDC_EDITECHOFEED));
+
 			{
 
 				bool enabled = true;
@@ -444,6 +578,7 @@ namespace {
 				m_slider_fb.SetPos(pfc::clip_t<t_int32>(feedback, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
 				RefreshLabel(ms, amp, feedback);
 			}
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return TRUE;
 		}
 
@@ -468,18 +603,30 @@ namespace {
 
 		void RefreshLabel(int ms, int amp, int feedback)
 		{
-			pfc::string_formatter msg; msg << "Delay time: " << pfc::format_int(ms) << " ms";
-			::uSetDlgItemText(*this, IDC_SLIDER_LABEL_MS, msg);
-			msg.reset(); msg << "Echo volume: " << pfc::format_int(amp * 100 / 256) << "%";
-			::uSetDlgItemText(*this, IDC_SLIDER_LABEL_AMP, msg);
-			msg.reset(); msg << "Echo feedback: " << pfc::format_int(feedback * 100 / 256) << "%";
-			::uSetDlgItemText(*this, IDC_SLIDER_LABEL_FB, msg);
+			CString sWindowText;
+			pfc::string_formatter msg;
+			msg << pfc::format_int(ms);
+			sWindowText = msg.c_str();
+			delay_s = sWindowText;
+			delay_edit.SetWindowText(sWindowText);
+			msg.reset();
+			msg << pfc::format_int(amp * 100 / 256);
+			sWindowText = msg.c_str();
+			vol_s = sWindowText;
+			vol_edit.SetWindowText(sWindowText);
+			msg.reset();
+			msg << pfc::format_int(feedback * 100 / 256);
+			sWindowText = msg.c_str();
+			feed_s = sWindowText;
+			feed_edit.SetWindowText(sWindowText);
 		}
-
+		fb2k::CDarkModeHooks m_hooks;
 		const dsp_preset & m_initData; // modal dialog so we can reference this caller-owned object.
 		dsp_preset_edit_callback & m_callback;
 		int ms, amp, feedback;
 		CTrackBarCtrl m_slider_ms, m_slider_amp, m_slider_fb;
+		CEditMod delay_edit, vol_edit, feed_edit;
+		CString delay_s, vol_s, feed_s;
 	};
 
 	static void RunDSPConfigPopup(const dsp_preset & p_data, HWND p_parent, dsp_preset_edit_callback & p_callback)

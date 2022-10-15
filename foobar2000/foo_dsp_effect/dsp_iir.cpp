@@ -1,15 +1,19 @@
 #include "../helpers/foobar2000+atl.h"
+#include "../helpers/DarkMode.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
 #include "resource.h"
 #include "iirfilters.h"
 #include "dsp_guids.h"
-static double clamp_ml(double x, double upper, double lower)
-{
-	return min(upper, max(x, lower));
-}
+
+
+
 namespace {
+	static double clamp_ml(double x, double upper, double lower)
+	{
+		return min(upper, max(x, lower));
+	}
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -179,6 +183,7 @@ namespace {
 		END_MSG_MAP()
 
 	private:
+		fb2k::CDarkModeHooks m_hooks;
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)
@@ -280,6 +285,7 @@ namespace {
 				RefreshLabel(p_freq, p_gain, p_type);
 
 			}
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return TRUE;
 		}
 
@@ -476,6 +482,7 @@ namespace {
 		}
 
 	private:
+		fb2k::CDarkModeHooks m_hooks;
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)
@@ -687,6 +694,7 @@ namespace {
 			m_ownIIRUpdate = false;
 
 			ApplySettings();
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return TRUE;
 		}
 
@@ -777,6 +785,5 @@ namespace {
 
 	};
 	static service_factory_single_t<myElem_t> g_myElemFactory;
-
 
 }
