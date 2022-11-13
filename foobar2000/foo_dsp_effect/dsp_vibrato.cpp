@@ -11,11 +11,6 @@
 #include <vector>
 namespace {
 
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
-
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -274,7 +269,7 @@ namespace {
 	{
 	public:
 		CMyDSPPopupVibrato(const dsp_preset & initData, dsp_preset_edit_callback & callback) : m_initData(initData), m_callback(callback) { }
-		enum { IDD = IDD_VIBRATO };
+		enum { IDD = IDD_TREMELO };
 		enum
 		{
 			FreqMin = 200,
@@ -289,16 +284,65 @@ namespace {
 			COMMAND_HANDLER_EX(IDOK, BN_CLICKED, OnButton)
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 			MSG_WM_HSCROLL(OnHScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
 	private:
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
+		}
+
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			dsp_preset_impl preset;
+			CString text, text2, text3, text4;
+			freq_edit.GetWindowText(text);
+			float freqhz = _ttof(text);
+			if (freq_s != text)
+			{
+				preset_changed = true;
+				freq = freqhz;
+			}
+
+
+			depth_edit.GetWindowText(text2);
+			float depth2 = _ttof(text2);
+			if (depth_s != text2)
+			{
+				preset_changed = true;
+				depth = depth2 / 100.0;
+			}
+
+			if (preset_changed)
+			{
+				dsp_preset_impl preset;
+				dsp_vibrato::make_preset(freq, depth, true, preset);
+				m_callback.on_preset_changed(preset);
+				slider_freq.SetPos((double)(100 * freq));
+				slider_depth.SetPos((double)(100 * depth));
+			}
+		}
+
+
 		fb2k::CDarkModeHooks m_hooks;
 		BOOL OnInitDialog(CWindow, LPARAM)
 		{
-			slider_freq = GetDlgItem(IDC_VIBRATOFREQ);
+			slider_freq = GetDlgItem(IDC_TREMELOFREQ);
 			slider_freq.SetRange(FreqMin, FreqMax);
-			slider_depth = GetDlgItem(IDC_VIBRATODEPTH);
+			slider_depth = GetDlgItem(IDC_TREMELODEPTH);
 			slider_depth.SetRange(0, depthmax);
+
+
+			freq_edit.AttachToDlgItem(m_hWnd);
+			freq_edit.SubclassWindow(GetDlgItem(IDC_EDITTREMFREQ));
+			depth_edit.AttachToDlgItem(m_hWnd);
+			depth_edit.SubclassWindow(GetDlgItem(IDC_EDITTREMDEPTH));
 			{
 				bool enabled;
 				dsp_vibrato::parse_preset(freq, depth, enabled, m_initData);
@@ -331,17 +375,20 @@ namespace {
 
 		}
 
+
 		void RefreshLabel(float freq, float depth)
 		{
+			CString sWindowText;
 			pfc::string_formatter msg;
-			msg << "Frequency: ";
-			msg << pfc::format_float(freq, 0, 2) << " Hz";
-			::uSetDlgItemText(*this, IDC_VIBRATOFREQLAB, msg);
+			msg << pfc::format_float(freq, 0, 1);
+			sWindowText = msg.c_str();
+			freq_s = sWindowText;
+			freq_edit.SetWindowText(sWindowText);
 			msg.reset();
-			msg << "Wet/Dry Mix : ";
-			msg << pfc::format_int(100 * depth) << " %";
-			::uSetDlgItemText(*this, IDC_VIBRATODEPTHLAB, msg);
-
+			msg << pfc::format_int(depth * 100);
+			sWindowText = msg.c_str();
+			depth_s = sWindowText;
+			depth_edit.SetWindowText(sWindowText);
 		}
 
 		const dsp_preset & m_initData; // modal dialog so we can reference this caller-owned object.
@@ -349,6 +396,8 @@ namespace {
 		float freq; //0.1 - 4.0
 		float depth;  //0 - 360
 		CTrackBarCtrl slider_freq, slider_depth;
+		CEditMod freq_edit, depth_edit;
+		CString freq_s, depth_s;
 	};
 
 	static void RunConfigPopup(const dsp_preset & p_data, HWND p_parent, dsp_preset_edit_callback & p_callback)
@@ -372,7 +421,7 @@ namespace {
 			echo_enabled = true;
 
 		}
-		enum { IDD = IDD_VIBRATO1 };
+		enum { IDD = IDD_TREMELO1 };
 		enum
 		{
 			FreqMin = 200,
@@ -383,8 +432,9 @@ namespace {
 		};
 		BEGIN_MSG_MAP(uielem_vibrato)
 			MSG_WM_INITDIALOG(OnInitDialog)
-			COMMAND_HANDLER_EX(IDC_VIBRATOENABLED, BN_CLICKED, OnEnabledToggle)
+			COMMAND_HANDLER_EX(IDC_TREMELOENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
 
@@ -436,6 +486,47 @@ namespace {
 		}
 
 	private:
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
+		}
+
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			dsp_preset_impl preset;
+			CString text, text2, text3, text4;
+			freq_edit.GetWindowText(text);
+			float freqhz = _ttof(text);
+			if (freq_s != text)
+			{
+				preset_changed = true;
+				freq = freqhz;
+			}
+
+
+			depth_edit.GetWindowText(text2);
+			float depth2 = _ttof(text2);
+			if (depth_s != text2)
+			{
+				preset_changed = true;
+				depth = depth2/100.;
+			}
+
+			if (preset_changed)
+			{
+				OnConfigChanged();
+				SetConfig();
+			}
+				
+		}
+
+
+
 		fb2k::CDarkModeHooks m_hooks;
 		void SetEchoEnabled(bool state) { m_buttonEchoEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsEchoEnabled() { return m_buttonEchoEnabled == NULL || m_buttonEchoEnabled.GetCheck() == BST_CHECKED; }
@@ -530,7 +621,7 @@ namespace {
 			freq = slider_freq.GetPos() / 100.0;
 			depth = slider_depth.GetPos() / 100.0;
 			echo_enabled = IsEchoEnabled();
-			RefreshLabel(freq, depth);
+			RefreshLabel(freq, depth*100);
 
 
 		}
@@ -539,21 +630,21 @@ namespace {
 		{
 			slider_freq.SetPos((double)(100 * freq));
 			slider_depth.SetPos((double)(100 * depth));
-
-			RefreshLabel(freq, depth);
+			RefreshLabel(freq, depth*100);
 
 		}
 
 		BOOL OnInitDialog(CWindow, LPARAM)
 		{
-
-			slider_freq = GetDlgItem(IDC_VIBRATOFREQ1);
+			slider_freq = GetDlgItem(IDC_TREMELOFREQ1);
 			slider_freq.SetRange(FreqMin, FreqMax);
-			slider_depth = GetDlgItem(IDC_VIBRATODEPTH1);
+			slider_depth = GetDlgItem(IDC_TREMELODEPTH1);
 			slider_depth.SetRange(0, depthmax);
-
-
-			m_buttonEchoEnabled = GetDlgItem(IDC_VIBRATOENABLED);
+			freq_edit.AttachToDlgItem(m_hWnd);
+			freq_edit.SubclassWindow(GetDlgItem(IDC_EDITTREMFREQUI));
+			depth_edit.AttachToDlgItem(m_hWnd);
+			depth_edit.SubclassWindow(GetDlgItem(IDC_EDITTREMDEPTHUI));
+			m_buttonEchoEnabled = GetDlgItem(IDC_TREMELOENABLED);
 			m_ownEchoUpdate = false;
 
 			ApplySettings();
@@ -564,14 +655,17 @@ namespace {
 
 		void RefreshLabel(float freq, float depth)
 		{
+			CString sWindowText;
 			pfc::string_formatter msg;
-			msg << "Frequency: ";
-			msg << pfc::format_float(freq, 0, 2) << " Hz";
-			::uSetDlgItemText(*this, IDC_VIBRATOFREQLAB1, msg);
+			msg << pfc::format_float(freq, 0, 1);
+			sWindowText = msg.c_str();
+			freq_s = sWindowText;
+			freq_edit.SetWindowText(sWindowText);
 			msg.reset();
-			msg << "Wet/Dry Mix : ";
-			msg << pfc::format_int(100 * depth) << " %";
-			::uSetDlgItemText(*this, IDC_VIBRATODEPTHLAB1, msg);
+			msg << pfc::format_int(depth);
+			sWindowText = msg.c_str();
+			depth_s = sWindowText;
+			depth_edit.SetWindowText(sWindowText);
 		}
 
 		bool echo_enabled;
@@ -579,6 +673,8 @@ namespace {
 		float depth;  //0 - 360
 		CTrackBarCtrl slider_freq, slider_depth;
 		CButton m_buttonEchoEnabled;
+		CEditMod freq_edit, depth_edit;
+		CString freq_s, depth_s;
 		bool m_ownEchoUpdate;
 
 		static uint32_t parseConfig(ui_element_config::ptr cfg) {

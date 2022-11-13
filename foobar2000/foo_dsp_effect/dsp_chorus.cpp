@@ -543,6 +543,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDC_RESETCHRUI4, BN_CLICKED, OnReset4)
 			COMMAND_HANDLER_EX(IDC_RESETCHRUI5, BN_CLICKED, OnReset5)
 			MSG_WM_HSCROLL(OnScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
 
@@ -601,6 +602,15 @@ namespace {
 			slider_delayms.SetPos((double)(100 * delay_ms));
 			ApplySettings();
 			RefreshLabel(delay_ms, depth_ms, lfo_freq, drywet * 100);
+		}
+
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
 		}
 
 		void OnReset1(UINT, int id, CWindow)

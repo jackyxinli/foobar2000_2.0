@@ -63,6 +63,7 @@
 #define IDC_IIRQ2                       1050
 #define IDC_IIRGAINEDIT                 1050
 #define IDD_IIR1                        1051
+#define IDC_IIRFREQEDIT2                1051
 #define IDC_IIRQINFO                    1052
 #define IDD_PHASER1                     1052
 #define IDC_SLOWRATIO                   1053
@@ -71,8 +72,6 @@
 #define IDC_IIRGAIN                     1055
 #define IDD_TREMELO                     1055
 #define IDC_GAIN                        1056
-#define IDD_VIBRATO                     1056
-#define IDD_VIBRATO1                    1057
 #define IDC_IIRGAININFO                 1058
 #define IDD_TREMELO1                    1058
 #define IDC_DISPLAY_GAIN                1059
@@ -137,20 +136,11 @@
 #define IDC_WAHLFOPHASEINFO1            1138
 #define IDC_CHECK1                      1140
 #define IDC_WAHENABLED                  1140
-#define IDC_VIBRATOENABLED              1140
 #define IDC_TREMELOENABLED              1140
 #define IDC_TREMELOFREQ                 1141
 #define IDC_TREMELOFREQLAB              1142
 #define IDC_TREMELODEPTH                1143
 #define IDC_TREMELODEPTHLAB             1144
-#define IDC_VIBRATOFREQ                 1145
-#define IDC_VIBRATOFREQLAB              1146
-#define IDC_VIBRATODEPTH                1147
-#define IDC_VIBRATODEPTHLAB             1148
-#define IDC_VIBRATOFREQ1                1149
-#define IDC_VIBRATOFREQLAB1             1153
-#define IDC_VIBRATODEPTH1               1154
-#define IDC_VIBRATODEPTHLAB1            1155
 #define IDC_TREMELOFREQ1                1156
 #define IDC_TREMELOFREQLAB1             1157
 #define IDC_TREMELODEPTH1               1158
@@ -201,7 +191,10 @@
 #define IDC_TEMPOALG2                   1201
 #define IDC_IIRQ1                       1201
 #define IDC_RESET2                      1202
+#define IDC_IIRQGAINEDIT1               1202
 #define IDC_PITCH_EDIT3                 1203
+#define IDC_IIRQGAINEDIT2               1203
+#define IDC_IIRQFREQEDIT1               1203
 #define IDC_PITCHINFO_UI6               1204
 #define IDC_TEMPOTYPE_UI3               1206
 #define IDC_RESET3                      1207
@@ -216,11 +209,9 @@
 #define IDC_RESETCHRUI3                 1289
 #define IDC_RESETCHR3                   1290
 #define IDC_RESETCHRUI4                 1290
-#define IDC_EDIT1                       1291
 #define IDC_RESETCHR4                   1292
 #define IDC_IDC_RESETCHRUI5             1292
 #define IDC_RESETCHRUI5                 1292
-#define IDC_EDIT2                       1292
 #define IDC_RESETCHR5                   1293
 #define IDC_EDIT3                       1293
 #define IDC_EDITECHOVOL                 1293
@@ -230,6 +221,27 @@
 #define IDC_EDITECHOFEEDELEM            1302
 #define IDC_EDITECHODELAY               1303
 #define IDC_EDITECHOFEED                1304
+#define IDC_EDITECHODELAY2              1304
+#define IDC_EDITECHODELAY3              1305
+#define IDC_EDITECHODELAY4              1306
+#define IDC_EDITECHODELAY5              1307
+#define IDC_EDITECHODELAY6              1308
+#define IDC_EDITEPHASERSTAGES           1309
+#define IDC_EDITPHASERDRYWET            1310
+#define IDC_EDITPHASERFREQ              1311
+#define IDC_EDITPHASERSTART             1312
+#define IDC_EDITPHASERDEPTH             1313
+#define IDC_EDITPHASERFB                1314
+#define IDC_EDITPHASERSTAGESUI          1315
+#define IDC_EDITPHASEDRYWETUI           1316
+#define IDC_EDITPHASELFOFREQUI          1317
+#define IDC_EDITPHASESTARTPHASEUI       1318
+#define IDC_EDITPHASEDEPTHUI            1319
+#define IDC_EDITPHASEFBUI               1320
+#define IDC_EDITTREMFREQ                1321
+#define IDC_EDITTREMDEPTH               1322
+#define IDC_EDITTREMFREQUI              1323
+#define IDC_EDITTREMDEPTHUI             1324
 #define IDC_SLIDER                      -1
 
 // Next default values for new objects
@@ -238,7 +250,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1305
+#define _APS_NEXT_CONTROL_VALUE         1325
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -520,7 +520,23 @@ namespace {
 
 		void GetEditText()
 		{
-			CString sWindowText,sWindowText2;
+			CString sWindowText,sWindowText2,sWindowText3;
+			freq_edit.GetWindowText(sWindowText3);
+			int freq2= _ttoi(sWindowText3);
+			if (freq_s != sWindowText3)
+			{
+				freq2 = clamp_ml(freq2, 0.0, FreqMax);
+				if (IsIIREnabled())
+				{
+					dsp_preset_impl preset;
+					dsp_iir::make_preset(freq2, p_gain, p_type, p_qual, true, preset);
+					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+
+				}
+
+			}
+
+
 			pitch_edit.GetWindowText(sWindowText);
 			float pitch2 = _ttof(sWindowText);
 			if (pitch_s != sWindowText)
@@ -668,6 +684,8 @@ namespace {
 		{
 			pitch_edit.AttachToDlgItem(m_hWnd);
 			pitch_edit.SubclassWindow(GetDlgItem(IDC_IIRQ));
+			freq_edit.AttachToDlgItem(m_hWnd);
+			freq_edit.SubclassWindow(GetDlgItem(IDC_IIRFREQEDIT2));
 			gain_edit.AttachToDlgItem(m_hWnd);
 			gain_edit.SubclassWindow(GetDlgItem(IDC_IIRGAINEDIT));
 			slider_freq = GetDlgItem(IDC_IIRFREQ1);
@@ -703,21 +721,13 @@ namespace {
 			pfc::string_formatter msg;
 
 			if (p_type == 10)
-			{
-				msg << "Frequency: disabled";
-				::uSetDlgItemText(*this, IDC_IIRFREQINFO1, msg);
-				msg.reset();
-				msg << "Gain: disabled";
-				::uSetDlgItemText(*this, IDC_IIRGAININFO1, msg);
 				return;
-
-			}
-			msg << "Frequency: ";
-			msg << pfc::format_int(p_freq) << " Hz";
-			::uSetDlgItemText(*this, IDC_IIRFREQINFO1, msg);
 			msg.reset();
-			msg << "Gain (db)";
-			::uSetDlgItemText(*this, IDC_IIRGAININFO1, msg);
+			msg << pfc::format_int(p_freq);
+			CString sWindowText3;
+			sWindowText3 = msg.c_str();
+			freq_s = sWindowText3;
+			freq_edit.SetWindowText(sWindowText3);
 
 			msg.reset();
 			msg << pfc::format_float(p_gain, 0, 2);
@@ -739,6 +749,8 @@ namespace {
 		float p_gain; //gain
 		int p_type; //filter type
 		float p_qual;
+		CEditMod freq_edit;
+		CString freq_s;
 		CEditMod pitch_edit;
 		CString pitch_s;
 		CEditMod gain_edit;
