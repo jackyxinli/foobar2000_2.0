@@ -82,7 +82,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>shared.lib;msdmo.lib;dmoguids.lib;amstrmid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>C:\apps\foobar2000\components\foo_dsp_effect.dll</OutputFile>
+      <OutputFile>C:\apps\fb2ktest\user-components\foo_dsp_effect.dll</OutputFile>
       <AdditionalLibraryDirectories>..\shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -109,7 +109,7 @@
     <Link>
       <AdditionalOptions>/Zi %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>..\shared\shared.lib;msdmo.lib;dmoguids.lib;amstrmid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>C:\apps\foobar2000\components\foo_dsp_effect.dll</OutputFile>
+      <OutputFile>C:\apps\foobar2000\user-components\foo_dsp_effect.dll</OutputFile>
       <AdditionalLibraryDirectories>..\shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

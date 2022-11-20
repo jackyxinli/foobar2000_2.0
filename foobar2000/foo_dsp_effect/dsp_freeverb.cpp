@@ -10,11 +10,6 @@
 
 namespace {
 
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
-
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -193,6 +188,7 @@ namespace {
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_FREEVERBENABLE, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
 
@@ -243,6 +239,15 @@ namespace {
 		}
 
 	private:
+
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
+		}
 		fb2k::CDarkModeHooks m_hooks;
 		void SetReverbEnabled(bool state) { m_buttonReverbEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsReverbEnabled() { return m_buttonReverbEnabled == NULL || m_buttonReverbEnabled.GetCheck() == BST_CHECKED; }
@@ -401,6 +406,9 @@ namespace {
 
 		bool reverb_enabled;
 		float  drytime, wettime, dampness, roomwidth, roomsize;
+
+		CEditMod drytime_edit, wettime_edit, dampness_edit, roomwidth_edit, roomsize_edit;
+		CString  drytime_s, wettime_s, dampness_s, roomwidth_s, roomsize_s;
 		CTrackBarCtrl slider_drytime, slider_wettime, slider_dampness, slider_roomwidth, slider_roomsize;
 		CButton m_buttonReverbEnabled;
 		bool m_ownReverbUpdate;
@@ -472,8 +480,20 @@ namespace {
 			COMMAND_HANDLER_EX(IDOK, BN_CLICKED, OnButton)
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 			MSG_WM_HSCROLL(OnHScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 	private:
+
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
+		}
+
+
 		void DSPConfigChange(dsp_chain_config const & cfg)
 		{
 			if (m_hWnd != NULL) {
@@ -496,6 +516,43 @@ namespace {
 
 				RefreshLabel(drytime, wettime, dampness, roomwidth, roomsize);
 			}
+		}
+
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			dsp_preset_impl preset;
+			CString text, text2, text3, text4;
+			delay_edit.GetWindowText(text);
+			float delay2 = pfc::clip_t<t_int32>(_ttoi(text), 10, 5000);
+
+			if (delay_s != text)
+			{
+				ms = delay2;
+				preset_changed = true;
+			}
+
+			vol_edit.GetWindowText(text2);
+			float depth2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, 100);
+			if (vol_s != text2)
+			{
+				preset_changed = true;
+				amp = (depth2 / 100 * 256);
+				amp = depth2;
+			}
+
+
+			feed_edit.GetWindowText(text3);
+			float lfo = pfc::clip_t<t_int32>(_ttoi(text3), 0, 100);
+			if (feed_s != text3)
+			{
+				preset_changed = true;
+				feedback = (lfo / 100 * 256);
+			}
+
+			if (preset_changed)
+				ApplySettings();
+
 		}
 
 		BOOL OnInitDialog(CWindow, LPARAM)
@@ -574,6 +631,11 @@ namespace {
 		const dsp_preset & m_initData; // modal dialog so we can reference this caller-owned object.
 		dsp_preset_edit_callback & m_callback;
 		float  drytime, wettime, dampness, roomwidth, roomsize;
+
+
+
+		CEditMod drytime_edit, wettime_edit, dampness_edit, roomwidth_edit, roomsize_edit;
+		CString  drytime_s, wettime_s, dampness_s, roomwidth_s, roomsize_s;
 		CTrackBarCtrl slider_drytime, slider_wettime, slider_dampness, slider_roomwidth, slider_roomsize;
 	};
 	static void RunDSPConfigPopup(const dsp_preset & p_data, HWND p_parent, dsp_preset_edit_callback & p_callback)

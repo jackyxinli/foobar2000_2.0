@@ -1070,7 +1070,7 @@ private:
 		CString sWindowText;
 		pitch_edit.GetWindowText(sWindowText);
 		float pitch2 = _ttof(sWindowText);
-		pitch2 = clamp_ml(pitch2, 95.0, -95.0);
+		pitch2 = pfc::clip_t<t_float32>(pitch2, -95.0, 95.0);
 		if (pitch_s != sWindowText)
 		{
 			float pitch3 = pitch2 * 100.00;
@@ -1360,7 +1360,7 @@ private:
 			CString pitchwindowtext;
 			pitch_edit.GetWindowText(pitchwindowtext);
 			float pitch2 = _ttof(pitchwindowtext);
-			pitch2 = clamp_ml(pitch2, 12.0, -12.0);
+			pitch2 = pfc::clip_t<t_float32>(pitch2, -12.0, 12.0);
 			if (pitch_s != pitchwindowtext)
 			{
 				pitch = pitch2;
@@ -1373,7 +1373,7 @@ private:
 			CString tempowindowtext;
 			tempo_edit.GetWindowText(tempowindowtext);
 			float tempo2 = _ttof(tempowindowtext);
-			tempo2 = clamp_ml(tempo2, 95.0, -95.0);
+			tempo2 = pfc::clip_t<t_float32>(tempo2, -95.0, 95.0);
 			if (tempo_s != tempowindowtext)
 			{
 				tempo = tempo2;
@@ -1386,7 +1386,7 @@ private:
 			CString sWindowText;
 			rate_edit.GetWindowText(sWindowText);
 			float rate2 = _ttof(sWindowText);
-			rate2 = clamp_ml(rate2, 100.0, -50.0);
+			rate2 = pfc::clip_t<t_float32>(rate2, -100.0, 50.0);
 			//  pitch2 = round(pitch2);
 			if (rate_s != sWindowText)
 			{

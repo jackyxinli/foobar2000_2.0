@@ -24,7 +24,7 @@ Echo::~Echo()
 void Echo::SetDelay( int ms )
 {
 	int newDelay = ms * rate / 1000;
-	float *newHistory = new float[newDelay];
+	audio_sample*newHistory = new audio_sample[newDelay];
 	memset( newHistory, 0, newDelay * sizeof(float) );
 	if ( history )
 	{
@@ -94,9 +94,9 @@ int Echo::GetSampleRate() const
 
 
 
-float Echo::Process(float in)
+audio_sample Echo::Process(audio_sample in)
 {
-	float smp = history[pos];   
+	audio_sample smp = history[pos];
 	smp *= f_amp;			
 	smp += in;                
 	history[pos] = smp  * f_feedback;

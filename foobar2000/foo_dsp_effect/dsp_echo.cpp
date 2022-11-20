@@ -8,11 +8,6 @@
 
 namespace {
 
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
-
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -327,7 +322,8 @@ namespace {
 			dsp_preset_impl preset;
 			CString text, text2, text3, text4;
 			delay_edit.GetWindowText(text);
-			float delay2 = _ttof(text);
+			float delay2 = pfc::clip_t<t_int32>(_ttoi(text), 10, 5000);
+
 			if (delay_s != text)
 			{
 				ms = delay2;
@@ -335,7 +331,7 @@ namespace {
 			}
 
 			vol_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, 100);
 			if (vol_s != text2)
 			{
 				preset_changed = true;
@@ -345,7 +341,7 @@ namespace {
 
 
 			feed_edit.GetWindowText(text3);
-			float lfo = _ttof(text3);
+			float lfo = pfc::clip_t<t_int32>(_ttoi(text3), 0, 100);
 			if (feed_s != text3)
 			{
 				preset_changed = true;
@@ -353,7 +349,11 @@ namespace {
 			}
 
 			if (preset_changed)
-				ApplySettings();
+			{
+				SetConfig();
+				OnConfigChanged();
+			}
+				
 
 		}
 
@@ -528,7 +528,7 @@ namespace {
 			dsp_preset_impl preset;
 			CString text, text2, text3, text4;
 			delay_edit.GetWindowText(text);
-			float delay2 = _ttof(text);
+			float delay2 = pfc::clip_t<t_int32>(_ttoi(text), 10, 5000);
 			if (delay_s != text)
 			{
 				ms = delay2;
@@ -536,7 +536,7 @@ namespace {
 			}
 
 			vol_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, 100);
 			if (vol_s != text2)
 			{
 				preset_changed = true;
@@ -546,7 +546,7 @@ namespace {
 
 
 			feed_edit.GetWindowText(text3);
-			float lfo = _ttof(text3);
+			float lfo = pfc::clip_t<t_int32>(_ttoi(text3), 0, 100);
 			if (feed_s != text3)
 			{
 				preset_changed = true;
@@ -554,7 +554,15 @@ namespace {
 			}
 
 			if (preset_changed)
-				ApplySettings();
+			{
+				m_slider_ms.SetPos(pfc::clip_t<t_int32>(ms, MSRangeMin, MSRangeMax) - MSRangeMin);
+				m_slider_amp.SetPos(pfc::clip_t<t_int32>(amp, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
+				m_slider_fb.SetPos(pfc::clip_t<t_int32>(feedback, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
+				dsp_preset_impl preset;
+				dsp_echo::make_preset(ms, amp, feedback, true, preset);
+				m_callback.on_preset_changed(preset);
+				RefreshLabel(ms, amp, feedback);
+			}
 		}
 
 

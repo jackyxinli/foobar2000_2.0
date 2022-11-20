@@ -10,11 +10,6 @@
 
 namespace {
 
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
-
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -363,16 +358,15 @@ namespace {
 			dsp_preset_impl preset;
 			CString text,text2,text3,text4;
 			delay_edit.GetWindowText(text);
-			float delay2 = _ttof(text);
+			float delay2 = pfc::clip_t<t_float32>(_ttof(text), 2.0, 40.0);
 			if (delay_s != text)
 			{
 				preset_changed = true;
 				delay_ms = delay2;
 			}
 				
-
 			depth_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = pfc::clip_t<t_float32>(_ttof(text2), 2.0, 40.0);
 			if (depth_s != text2)
 			{
 				preset_changed = true;
@@ -381,7 +375,7 @@ namespace {
 				
 
 			lfo_edit.GetWindowText(text3);
-			float lfo = _ttof(text3);
+			float lfo = pfc::clip_t<t_float32>(_ttof(text3), 0.0, 50.0);
 			if (lfo_s != text3)
 			{
 				preset_changed = true;
@@ -389,7 +383,7 @@ namespace {
 			}
 				
 			drywet_edit.GetWindowText(text4);
-			float drywet2 = _ttof(text4);
+			float drywet2 = pfc::clip_t<t_float32>(_ttof(text3), 0.0, 100.0);
 			if (drywet_s != text4)
 			{
 				preset_changed = true;
@@ -397,14 +391,7 @@ namespace {
 			}
 				
 			if(preset_changed)
-			{
-				dsp_chorus::make_preset(delay_ms, depth_ms, lfo_freq, drywet, true, preset);
-				m_callback.on_preset_changed(preset);
-				slider_drywet.SetPos((double)(100 * drywet));
-				slider_lfofreq.SetPos((double)(100 * lfo_freq));
-				slider_depthms.SetPos((double)(100 * depth_ms));
-				slider_delayms.SetPos((double)(100 * delay_ms));
-			}
+				Reset(drywet, lfo_freq, depth_ms, delay_ms);
 		}
 
 		BOOL OnInitDialog(CWindow, LPARAM)
@@ -659,41 +646,43 @@ namespace {
 			dsp_preset_impl preset;
 			CString text, text2, text3, text4;
 			delay_edit.GetWindowText(text);
-			float delay2 = _ttof(text);
-			if (delay_s != text) 
+			float delay2 = pfc::clip_t<t_float32>(_ttof(text), 2.0, 40.0);
+			if (delay_s != text)
 			{
-				delay_ms = delay2;
 				preset_changed = true;
+				delay_ms = delay2;
 			}
 
 			depth_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = pfc::clip_t<t_float32>(_ttof(text2), 2.0, 40.0);
 			if (depth_s != text2)
 			{
-				preset_changed = true; 
+				preset_changed = true;
 				depth_ms = depth2;
 			}
 
 
 			lfo_edit.GetWindowText(text3);
-			float lfo = _ttof(text3);
-			if (lfo_s != text3) 
+			float lfo = pfc::clip_t<t_float32>(_ttof(text3), 0.0, 50.0);
+			if (lfo_s != text3)
 			{
 				preset_changed = true;
 				lfo_freq = lfo;
 			}
 
 			drywet_edit.GetWindowText(text4);
-			float drywet2 = _ttof(text4);
-			if (drywet_s != text4) 
+			float drywet2 = pfc::clip_t<t_float32>(_ttof(text3), 0.0, 100.0);
+			if (drywet_s != text4)
 			{
 				preset_changed = true;
 				drywet = drywet2;
 			}
 				
-			if (preset_changed)
-				ApplySettings();
-			
+				if (preset_changed)
+				{
+					SetConfig();
+					OnConfigChanged();
+				}
 		}
 
 		void SetEchoEnabled(bool state) { m_buttonEchoEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
@@ -801,7 +790,6 @@ namespace {
 			slider_depthms.SetPos((double)(100 * depth_ms));
 			slider_lfofreq.SetPos((double)(100 * lfo_freq));
 			slider_drywet.SetPos((double)(100 * drywet));
-
 			RefreshLabel(delay_ms, depth_ms, lfo_freq, drywet*100);
 
 		}

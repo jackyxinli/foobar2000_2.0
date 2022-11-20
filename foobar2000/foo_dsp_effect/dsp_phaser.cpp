@@ -6,10 +6,6 @@
 #include "dsp_guids.h"
 
 namespace {
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
 
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{

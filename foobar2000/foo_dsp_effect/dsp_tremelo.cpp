@@ -10,11 +10,6 @@
 
 namespace {
 
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
-
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -48,7 +43,7 @@ namespace {
 	private:
 		float freq;
 		float depth;
-		float *table;
+		audio_sample *table;
 		int index;
 		int maxindex;
 	public:
@@ -65,7 +60,7 @@ namespace {
 		void init(float freq, float depth, int samplerate)
 		{
 			maxindex = samplerate / freq;
-			table = new float[maxindex];
+			table = new audio_sample[maxindex];
 			memset(table, 0, maxindex * sizeof(float));
 			const double offset = 1. - depth / 2.;
 			for (int i = 0; i < maxindex; i++) {
@@ -75,7 +70,7 @@ namespace {
 			}
 			index = 0;
 		}
-		float Process(float in)
+		audio_sample Process(audio_sample in)
 		{
 			index = index % maxindex;
 			return in * table[index++];
@@ -258,15 +253,15 @@ namespace {
 			CString text, text2, text3, text4;
 			freq_edit.GetWindowText(text);
 			float freqhz = _ttof(text);
+			freqhz = pfc::clip_t<t_float32>(freqhz, FreqMin, FreqMax);
 			if (freq_s != text)
 			{
 				preset_changed = true;
 				freq = freqhz;
 			}
-
-
 			depth_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = _ttoi(text2);
+			depth2 = pfc::clip_t<t_int32>(depth2, depthmin, depthmax);
 			if (depth_s != text2)
 			{
 				preset_changed = true;
@@ -450,25 +445,27 @@ namespace {
 			bool preset_changed = false;
 			dsp_preset_impl preset;
 			CString text, text2, text3, text4;
-			freq_edit.GetWindowText(text);
 			float freqhz = _ttof(text);
+			freqhz = pfc::clip_t<t_float32>(freqhz, FreqMin, FreqMax);
 			if (freq_s != text)
 			{
 				preset_changed = true;
 				freq = freqhz;
 			}
-
-
 			depth_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = _ttoi(text2);
+			depth2 = pfc::clip_t<t_int32>(depth2, depthmin, depthmax);
 			if (depth_s != text2)
 			{
 				preset_changed = true;
-				depth = depth2/100.0;
+				depth = depth2 / 100.0;
 			}
 
 			if (preset_changed)
-				ApplySettings();
+			{
+				OnConfigChanged();
+				SetConfig();
+			}
 				
 		}
 

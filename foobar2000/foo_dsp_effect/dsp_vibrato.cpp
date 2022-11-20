@@ -44,9 +44,9 @@ namespace {
 	const float VIBRATO_FREQUENCY_MAX_HZ = 14;
 	const float VIBRATO_DEPTH_DEFAULT_PERCENT = 50;
 
-	__forceinline float getSampleHermite4p3o(float x, float *y)
+	__forceinline audio_sample getSampleHermite4p3o(audio_sample x, audio_sample*y)
 	{
-		static float c0, c1, c2, c3;
+		static audio_sample c0, c1, c2, c3;
 		// 4-point, 3rd-order Hermite (x-form)
 		c0 = y[1];
 		c1 = (1.0 / 2.0)*(y[2] - y[0]);
@@ -63,8 +63,8 @@ namespace {
 		int phase;
 		float depth;
 		static const int additionalDelay = 3;
-		float*  buffer;
-		float *table;
+		audio_sample*  buffer;
+		audio_sample *table;
 		int writeIndex;
 		int size;
 	public:
@@ -80,8 +80,8 @@ namespace {
 		void init(float freq, float depth, int samplerate)
 		{
 			size = BASE_DELAY_SEC * samplerate * 2;
-			buffer = new float[size + additionalDelay];
-			memset(buffer, 0, (size + additionalDelay) * sizeof(float));
+			buffer = new audio_sample[size + additionalDelay];
+			memset(buffer, 0, (size + additionalDelay) * sizeof(audio_sample));
 			this->samplerate = samplerate;
 			this->freq = freq;
 			this->depth = depth;
@@ -89,22 +89,22 @@ namespace {
 			writeIndex = 0;
 
 		}
-		float Process(float in)
+		audio_sample Process(audio_sample in)
 		{
-			float M = freq / samplerate;
+			audio_sample M = freq / samplerate;
 			int maxphase = samplerate / freq;
-			float lfoValue = sin(M * 2. * M_PI * phase++);
+			audio_sample lfoValue = sin(M * 2. * M_PI * phase++);
 			phase = phase % maxphase;
 			lfoValue = (lfoValue + 1) * 1.; // transform from [-1; 1] to [0; 1]
 			int maxDelay = BASE_DELAY_SEC * samplerate;
-			float delay = lfoValue * depth * maxDelay;
+			audio_sample delay = lfoValue * depth * maxDelay;
 			delay += additionalDelay;
-			float fReadIndex = writeIndex - 1 - delay;
+			audio_sample fReadIndex = writeIndex - 1 - delay;
 			while (fReadIndex < 0)fReadIndex += size;
 			while (fReadIndex >= size)fReadIndex -= size;
 			int iPart = (int)fReadIndex; // integer part of the delay
-			float fPart = fReadIndex - iPart; // fractional part of the delay
-			float value = getSampleHermite4p3o(fPart, &(buffer[iPart]));
+			audio_sample fPart = fReadIndex - iPart; // fractional part of the delay
+			audio_sample value = getSampleHermite4p3o(fPart, &(buffer[iPart]));
 			buffer[writeIndex] = in;
 			if (writeIndex < additionalDelay) {
 				buffer[size + writeIndex] = in;
@@ -304,15 +304,15 @@ namespace {
 			CString text, text2, text3, text4;
 			freq_edit.GetWindowText(text);
 			float freqhz = _ttof(text);
+			freqhz = pfc::clip_t<t_float32>(freqhz, FreqMin, FreqMax);
 			if (freq_s != text)
 			{
 				preset_changed = true;
 				freq = freqhz;
 			}
-
-
 			depth_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = _ttoi(text2);
+			depth2 = pfc::clip_t<t_int32>(depth2,depthmin, depthmax);
 			if (depth_s != text2)
 			{
 				preset_changed = true;
@@ -326,6 +326,7 @@ namespace {
 				m_callback.on_preset_changed(preset);
 				slider_freq.SetPos((double)(100 * freq));
 				slider_depth.SetPos((double)(100 * depth));
+				RefreshLabel(freq, depth);
 			}
 		}
 
@@ -502,6 +503,7 @@ namespace {
 			CString text, text2, text3, text4;
 			freq_edit.GetWindowText(text);
 			float freqhz = _ttof(text);
+			freqhz = pfc::clip_t<t_float32>(freqhz, FreqMin, FreqMax);
 			if (freq_s != text)
 			{
 				preset_changed = true;
@@ -510,7 +512,8 @@ namespace {
 
 
 			depth_edit.GetWindowText(text2);
-			float depth2 = _ttof(text2);
+			float depth2 = _ttoi(text2);
+			depth2 = pfc::clip_t<t_int32>(depth2,0, 100);
 			if (depth_s != text2)
 			{
 				preset_changed = true;
@@ -524,9 +527,6 @@ namespace {
 			}
 				
 		}
-
-
-
 		fb2k::CDarkModeHooks m_hooks;
 		void SetEchoEnabled(bool state) { m_buttonEchoEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsEchoEnabled() { return m_buttonEchoEnabled == NULL || m_buttonEchoEnabled.GetCheck() == BST_CHECKED; }

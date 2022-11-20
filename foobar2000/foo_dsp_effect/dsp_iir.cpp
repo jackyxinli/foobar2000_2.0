@@ -10,10 +10,6 @@
 
 
 namespace {
-	static double clamp_ml(double x, double upper, double lower)
-	{
-		return min(upper, max(x, lower));
-	}
 	class CEditMod : public CWindowImpl<CEditMod, CEdit >
 	{
 	public:
@@ -500,6 +496,7 @@ namespace {
 			p_type = SendDlgItemMessage(IDC_IIRTYPE1, CB_GETCURSEL);
 			if(IsIIREnabled())
 			{
+				IIREnable(p_freq, p_gain, p_type, p_qual, true);
 				dsp_preset_impl preset;
 				dsp_iir::make_preset(p_freq, p_gain, p_type, p_qual, true, preset);
 				static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
@@ -520,54 +517,41 @@ namespace {
 
 		void GetEditText()
 		{
+			bool changed = false;
 			CString sWindowText,sWindowText2,sWindowText3;
 			freq_edit.GetWindowText(sWindowText3);
-			int freq2= _ttoi(sWindowText3);
+			int freq2 = pfc::clip_t<t_int32>(_ttoi(sWindowText3), 0, FreqMax);
 			if (freq_s != sWindowText3)
 			{
-				freq2 = clamp_ml(freq2, 0.0, FreqMax);
-				if (IsIIREnabled())
-				{
-					dsp_preset_impl preset;
-					dsp_iir::make_preset(freq2, p_gain, p_type, p_qual, true, preset);
-					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
-
-				}
+				p_freq = freq2;
+				changed = true;
 
 			}
-
-
 			pitch_edit.GetWindowText(sWindowText);
 			float pitch2 = _ttof(sWindowText);
 			if (pitch_s != sWindowText)
 			{
 				p_qual = pitch2;
-				if (IsIIREnabled())
-				{
-					dsp_preset_impl preset;
-					dsp_iir::make_preset(p_freq, p_gain, p_type, pitch2, true, preset);
-					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
-					
-				}
-				
+				changed = true;
 			}
 
 			gain_edit.GetWindowText(sWindowText2);
-			float gain2 = _ttof(sWindowText2);
-			gain2 = clamp_ml(gain2, 100, -100);
+			float gain2 = pfc::clip_t<t_float32>(_ttof(sWindowText2), -100.00, 100);
 			if (gain_s != sWindowText2)
 			{
 				p_gain = gain2;
-				SetConfig();
+				changed = true;
+			}
+
+			if (changed)
 				if (IsIIREnabled())
 				{
+					SetConfig();
 					dsp_preset_impl preset;
 					dsp_iir::make_preset(p_freq, gain2, p_type, p_qual, true, preset);
 					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
 				}
-				
-
-			}
+			
 		}
 
 
