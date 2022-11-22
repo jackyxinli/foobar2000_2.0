@@ -275,6 +275,7 @@ namespace {
 				m_callback.on_preset_changed(preset);
 				slider_freq.SetPos((double)(100 * freq));
 				slider_depth.SetPos((double)(100 * depth));
+				RefreshLabel(freq, depth);
 			}
 		}
 

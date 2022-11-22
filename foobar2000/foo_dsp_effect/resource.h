@@ -242,6 +242,17 @@
 #define IDC_EDITTREMDEPTH               1322
 #define IDC_EDITTREMFREQUI              1323
 #define IDC_EDITTREMDEPTHUI             1324
+#define IDC_EDITFREEDRY                 1325
+#define IDC_EDITFREEWET                 1326
+#define IDC_EDITFREERSZ                 1327
+#define IDC_EDITFREEDAMP                1328
+#define IDC_EDITFREERW                  1329
+#define IDC_EDITFREEDRY1                1330
+#define IDC_EDITFREEWET1                1331
+#define IDC_EDITFREEDAMP1               1332
+#define IDC_EDITFREERS1                 1333
+#define IDC_EDITFREEROOMW1              1334
+#define IDC_EDITFREEW1                  1334
 #define IDC_SLIDER                      -1
 
 // Next default values for new objects
@@ -250,7 +261,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1325
+#define _APS_NEXT_CONTROL_VALUE         1336
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

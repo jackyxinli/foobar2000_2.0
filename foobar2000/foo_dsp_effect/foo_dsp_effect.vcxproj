@@ -62,8 +62,8 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\codecrack\wtl;C:\code\working\foobar2000;C:\code\working\foobar2000\libPPUI;C:\code\working\foobar2000\pfc;C:\code\working\foobar2000\foobar2000;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\code\3rdparty-deps\wtl;C:\code\working\foobar2000;C:\code\working\foobar2000\foobar2000;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\codecrack\wtl;C:\code\working\foobar2000\foobar2000\foobar2000_component_client;C:\code\working\foobar2000\libPPUI;C:\code\working\foobar2000\pfc;C:\code\working\foobar2000\foobar2000\SDK;C:\code\working\foobar2000\foobar2000\shared;C:\code\working\foobar2000\foobar2000\helpers;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\code\3rdparty-deps\wtl;C:\code\working\foobar2000;C:\code\working\foobar2000\foobar2000;C:\code\working\foobar2000\foobar2000\SDK;C:\code\working\foobar2000\foobar2000\shared;C:\code\working\foobar2000\foobar2000\helpers;C:\code\working\foobar2000\foobar2000\foobar2000_component_client;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <SourcePath>C:\codecrack\wtl;$(SourcePath)</SourcePath>
@@ -176,7 +176,6 @@
     <ClInclude Include="..\..\..\3rdparty-deps\SoundTouch\SoundTouch.h" />
     <ClInclude Include="..\..\..\3rdparty-deps\SoundTouch\STTypes.h" />
     <ClInclude Include="..\..\..\3rdparty-deps\SoundTouch\TDStretch.h" />
-    <ClInclude Include="..\foo_sample\resource.h" />
     <ClInclude Include="circular_buffer.h" />
     <ClInclude Include="dsp_guids.h" />
     <ClInclude Include="resource.h" />

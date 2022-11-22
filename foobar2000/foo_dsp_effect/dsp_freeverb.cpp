@@ -248,6 +248,13 @@ namespace {
 			}
 			return 0;
 		}
+
+		void GetEditText()
+		{
+
+		}
+
+
 		fb2k::CDarkModeHooks m_hooks;
 		void SetReverbEnabled(bool state) { m_buttonReverbEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsReverbEnabled() { return m_buttonReverbEnabled == NULL || m_buttonReverbEnabled.GetCheck() == BST_CHECKED; }
@@ -371,6 +378,32 @@ namespace {
 			slider_roomwidth.SetRange(0, roomwidthtotal);
 			slider_roomsize = GetDlgItem(IDC_ROOMSIZE1);
 			slider_roomsize.SetRange(0, roomsizetotal);
+
+			drytime_edit.AttachToDlgItem(m_hWnd);
+			drytime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDRY));
+			wettime_edit.AttachToDlgItem(m_hWnd);
+			wettime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEWET));
+			dampness_edit.AttachToDlgItem(m_hWnd);
+			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP));
+			roomwidth_edit.AttachToDlgItem(m_hWnd);
+			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERW));
+			roomsize_edit.AttachToDlgItem(m_hWnd);
+			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERSZ));
+			/*
+			#define IDC_EDITFREEDRY                 1325
+#define IDC_EDITFREEWET                 1326
+#define IDC_EDITFREERSZ                 1327
+#define IDC_EDITFREEDAMP                1328
+#define IDC_EDITFREEROOMWIDTH           1329
+#define IDC_EDITFREERW                  1329
+#define IDC_EDITFREEDRY1                1330
+#define IDC_EDITFREEWET1                1331
+#define IDC_EDITFREEDAMP1               1332
+#define IDC_EDITFREEROOMSZ1             1333
+#define IDC_EDITFREEROOMW1              1334
+			
+			*/
+			//roomwidth_edit, roomsize_edit;
 
 			m_buttonReverbEnabled = GetDlgItem(IDC_FREEVERBENABLE);
 			m_ownReverbUpdate = false;
@@ -501,6 +534,11 @@ namespace {
 			}
 		}
 
+		void GetEditText()
+		{
+
+		}
+
 		void ApplySettings()
 		{
 			dsp_preset_impl preset2;
@@ -518,43 +556,6 @@ namespace {
 			}
 		}
 
-		void GetEditText()
-		{
-			bool preset_changed = false;
-			dsp_preset_impl preset;
-			CString text, text2, text3, text4;
-			delay_edit.GetWindowText(text);
-			float delay2 = pfc::clip_t<t_int32>(_ttoi(text), 10, 5000);
-
-			if (delay_s != text)
-			{
-				ms = delay2;
-				preset_changed = true;
-			}
-
-			vol_edit.GetWindowText(text2);
-			float depth2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, 100);
-			if (vol_s != text2)
-			{
-				preset_changed = true;
-				amp = (depth2 / 100 * 256);
-				amp = depth2;
-			}
-
-
-			feed_edit.GetWindowText(text3);
-			float lfo = pfc::clip_t<t_int32>(_ttoi(text3), 0, 100);
-			if (feed_s != text3)
-			{
-				preset_changed = true;
-				feedback = (lfo / 100 * 256);
-			}
-
-			if (preset_changed)
-				ApplySettings();
-
-		}
-
 		BOOL OnInitDialog(CWindow, LPARAM)
 		{
 			slider_drytime = GetDlgItem(IDC_DRYTIME);
@@ -567,6 +568,17 @@ namespace {
 			slider_roomwidth.SetRange(0, roomwidthtotal);
 			slider_roomsize = GetDlgItem(IDC_ROOMSIZE);
 			slider_roomsize.SetRange(0, roomsizetotal);
+
+			drytime_edit.AttachToDlgItem(m_hWnd);
+			drytime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDRY1));
+			wettime_edit.AttachToDlgItem(m_hWnd);
+			wettime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEWET1));
+			dampness_edit.AttachToDlgItem(m_hWnd);
+			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP1));
+			roomwidth_edit.AttachToDlgItem(m_hWnd);
+			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERW1));
+			roomsize_edit.AttachToDlgItem(m_hWnd);
+			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERSZ1));
 
 			{
 				bool enabled;

@@ -90,7 +90,6 @@
       <Filter>DSP</Filter>
     </ClInclude>
     <ClInclude Include="dsp_guids.h" />
-    <ClInclude Include="..\foo_sample\resource.h" />
     <ClInclude Include="..\..\..\3rdparty-deps\SoundTouch\AAFilter.h">
       <Filter>DSP\SoundTouch</Filter>
     </ClInclude>
