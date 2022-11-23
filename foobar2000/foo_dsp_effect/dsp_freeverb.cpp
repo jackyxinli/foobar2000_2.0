@@ -251,7 +251,60 @@ namespace {
 
 		void GetEditText()
 		{
+			bool preset_changed = false;
+			CString text, text2, text3, text4, text5;
 
+			drytime_edit.GetWindowText(text);
+			wettime_edit.GetWindowText(text2);
+			dampness_edit.GetWindowText(text3);
+			roomwidth_edit.GetWindowText(text4);
+			roomsize_edit.GetWindowText(text5);
+
+			float drytime2 = pfc::clip_t<t_int32>(_ttoi(text), 0, 100)/100.0;
+
+			if (drytime_s != text)
+			{
+				drytime = drytime2;
+				preset_changed = true;
+			}
+
+			float wettime2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, 100) / 100.0;
+
+			if (wettime_s != text)
+			{
+				wettime = wettime2;
+				preset_changed = true;
+			}
+
+			float dampness2 = pfc::clip_t<t_int32>(_ttoi(text3), 0, 100) / 100.0;
+
+			if (dampness_s != text)
+			{
+				dampness = dampness2;
+				preset_changed = true;
+			}
+
+			float roomwidth2 = pfc::clip_t<t_int32>(_ttoi(text4), 0, 100) / 100.0;
+
+			if (roomwidth_s != text)
+			{
+				roomwidth = roomwidth2;
+				preset_changed = true;
+			}
+
+			float roomsize2 = pfc::clip_t<t_int32>(_ttoi(text5), 0, 100) / 100.0;
+
+			if (roomsize_s != text)
+			{
+				roomsize = roomsize2;
+				preset_changed = true;
+			}
+
+			if(preset_changed)
+			{
+				SetConfig();
+				OnConfigChanged();
+			}
 		}
 
 
@@ -389,21 +442,6 @@ namespace {
 			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERW));
 			roomsize_edit.AttachToDlgItem(m_hWnd);
 			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERSZ));
-			/*
-			#define IDC_EDITFREEDRY                 1325
-#define IDC_EDITFREEWET                 1326
-#define IDC_EDITFREERSZ                 1327
-#define IDC_EDITFREEDAMP                1328
-#define IDC_EDITFREEROOMWIDTH           1329
-#define IDC_EDITFREERW                  1329
-#define IDC_EDITFREEDRY1                1330
-#define IDC_EDITFREEWET1                1331
-#define IDC_EDITFREEDAMP1               1332
-#define IDC_EDITFREEROOMSZ1             1333
-#define IDC_EDITFREEROOMW1              1334
-			
-			*/
-			//roomwidth_edit, roomsize_edit;
 
 			m_buttonReverbEnabled = GetDlgItem(IDC_FREEVERBENABLE);
 			m_ownReverbUpdate = false;
@@ -415,26 +453,29 @@ namespace {
 
 		void RefreshLabel(float  drytime, float wettime, float dampness, float roomwidth, float roomsize)
 		{
+			CString sWindowText;
 			pfc::string_formatter msg;
-			msg << "Dry Time: ";
-			msg << pfc::format_int(100 * drytime) << "%";
-			::uSetDlgItemText(*this, IDC_DRYTIMEINFO1, msg);
+			msg << pfc::format_int(drytime*100);
+			sWindowText = msg.c_str();
+			drytime_s = sWindowText;
+			drytime_edit.SetWindowText(sWindowText);
 			msg.reset();
-			msg << "Wet Time: ";
-			msg << pfc::format_int(100 * wettime) << "%";
-			::uSetDlgItemText(*this, IDC_WETTIMEINFO1, msg);
-			msg.reset();
-			msg << "Damping: ";
-			msg << pfc::format_int(100 * dampness) << "%";
-			::uSetDlgItemText(*this, IDC_DAMPINGINFO1, msg);
-			msg.reset();
-			msg << "Room Width: ";
-			msg << pfc::format_int(100 * roomwidth) << "%";
-			::uSetDlgItemText(*this, IDC_ROOMWIDTHINFO1, msg);
-			msg.reset();
-			msg << "Room Size: ";
-			msg << pfc::format_int(100 * roomsize) << "%";
-			::uSetDlgItemText(*this, IDC_ROOMSIZEINFO1, msg);
+			msg << pfc::format_int(wettime * 100);
+			sWindowText = msg.c_str();
+			wettime_s = sWindowText;
+			wettime_edit.SetWindowText(sWindowText);
+			msg << pfc::format_int(dampness * 100);
+			sWindowText = msg.c_str();
+			dampness_s = sWindowText;
+			dampness_edit.SetWindowText(sWindowText);
+			msg << pfc::format_int(roomwidth * 100);
+			sWindowText = msg.c_str();
+			roomwidth_s = sWindowText;
+			roomwidth_edit.SetWindowText(sWindowText);
+			msg << pfc::format_int(roomsize * 100);
+			sWindowText = msg.c_str();
+			roomsize_s = sWindowText;
+			roomsize_edit.SetWindowText(sWindowText);
 		}
 
 		bool reverb_enabled;
@@ -536,7 +577,67 @@ namespace {
 
 		void GetEditText()
 		{
+			bool preset_changed = false;
+			CString text, text2, text3, text4, text5;
 
+			drytime_edit.GetWindowText(text);
+			wettime_edit.GetWindowText(text2);
+			dampness_edit.GetWindowText(text3);
+			roomwidth_edit.GetWindowText(text4);
+			roomsize_edit.GetWindowText(text5);
+
+			float drytime2 = pfc::clip_t<t_int32>(_ttoi(text), 0, 100) / 100.0;
+
+			if (drytime_s != text)
+			{
+				drytime = drytime2;
+				preset_changed = true;
+			}
+
+			float wettime2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, 100) / 100.0;
+
+			if (wettime_s != text)
+			{
+				wettime = wettime2;
+				preset_changed = true;
+			}
+
+			float dampness2 = pfc::clip_t<t_int32>(_ttoi(text3), 0, 100) / 100.0;
+
+			if (dampness_s != text)
+			{
+				dampness = dampness2;
+				preset_changed = true;
+			}
+
+			float roomwidth2 = pfc::clip_t<t_int32>(_ttoi(text4), 0, 100) / 100.0;
+
+			if (roomwidth_s != text)
+			{
+				roomwidth = roomwidth2;
+				preset_changed = true;
+			}
+
+			float roomsize2 = pfc::clip_t<t_int32>(_ttoi(text5), 0, 100) / 100.0;
+
+			if (roomsize_s != text)
+			{
+				roomsize = roomsize2;
+				preset_changed = true;
+			}
+
+			if (preset_changed)
+			{
+				slider_drytime.SetPos((double)(100 * drytime));
+				slider_wettime.SetPos((double)(100 * wettime));
+				slider_dampness.SetPos((double)(100 * dampness));
+				slider_roomwidth.SetPos((double)(100 * roomwidth));
+				slider_roomsize.SetPos((double)(100 * roomsize));
+				dsp_preset_impl preset;
+				dsp_freeverb::make_preset(drytime, wettime, dampness, roomwidth, roomsize, true, preset);
+				m_callback.on_preset_changed(preset);
+			    RefreshLabel(drytime, wettime, dampness, roomwidth, roomsize);
+			}
 		}
 
 		void ApplySettings()
@@ -576,9 +677,9 @@ namespace {
 			dampness_edit.AttachToDlgItem(m_hWnd);
 			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP1));
 			roomwidth_edit.AttachToDlgItem(m_hWnd);
-			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERW1));
+			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEW1));
 			roomsize_edit.AttachToDlgItem(m_hWnd);
-			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERSZ1));
+			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERS1));
 
 			{
 				bool enabled;
@@ -619,26 +720,29 @@ namespace {
 
 		void RefreshLabel(float  drytime, float wettime, float dampness, float roomwidth, float roomsize)
 		{
+			CString sWindowText;
 			pfc::string_formatter msg;
-			msg << "Dry Time: ";
-			msg << pfc::format_int(100 * drytime) << "%";
-			::uSetDlgItemText(*this, IDC_DRYTIMEINFO, msg);
+			msg << pfc::format_int(drytime * 100);
+			sWindowText = msg.c_str();
+			drytime_s = sWindowText;
+			drytime_edit.SetWindowText(sWindowText);
 			msg.reset();
-			msg << "Wet Time: ";
-			msg << pfc::format_int(100 * wettime) << "%";
-			::uSetDlgItemText(*this, IDC_WETTIMEINFO, msg);
-			msg.reset();
-			msg << "Damping: ";
-			msg << pfc::format_int(100 * dampness) << "%";
-			::uSetDlgItemText(*this, IDC_DAMPINGINFO, msg);
-			msg.reset();
-			msg << "Room Width: ";
-			msg << pfc::format_int(100 * roomwidth) << "%";
-			::uSetDlgItemText(*this, IDC_ROOMWIDTHINFO, msg);
-			msg.reset();
-			msg << "Room Size: ";
-			msg << pfc::format_int(100 * roomsize) << "%";
-			::uSetDlgItemText(*this, IDC_ROOMSIZEINFO, msg);
+			msg << pfc::format_int(wettime * 100);
+			sWindowText = msg.c_str();
+			wettime_s = sWindowText;
+			wettime_edit.SetWindowText(sWindowText);
+			msg << pfc::format_int(dampness * 100);
+			sWindowText = msg.c_str();
+			dampness_s = sWindowText;
+			dampness_edit.SetWindowText(sWindowText);
+			msg << pfc::format_int(roomwidth * 100);
+			sWindowText = msg.c_str();
+			roomwidth_s = sWindowText;
+			roomwidth_edit.SetWindowText(sWindowText);
+			msg << pfc::format_int(roomsize * 100);
+			sWindowText = msg.c_str();
+			roomsize_s = sWindowText;
+			roomsize_edit.SetWindowText(sWindowText);
 		}
 		const dsp_preset & m_initData; // modal dialog so we can reference this caller-owned object.
 		dsp_preset_edit_callback & m_callback;
