@@ -198,6 +198,7 @@ namespace {
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_WAHENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
 
@@ -248,6 +249,15 @@ namespace {
 		}
 
 	private:
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
+		}
+
 		fb2k::CDarkModeHooks m_hooks;
 		void SetWahEnabled(bool state) { m_buttonWahEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsWahEnabled() { return m_buttonWahEnabled == NULL || m_buttonWahEnabled.GetCheck() == BST_CHECKED; }
@@ -335,6 +345,62 @@ namespace {
 
 		}
 
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			CString text;
+			freqofs_edit.GetWindowText(text);
+			float freqofs2 = pfc::clip_t<t_float32>(_ttoi(text), FrequencyOffsetMin, FrequencyOffsetMax) / FrequencyOffsetMax;
+			if (freqofs_s != text)
+			{
+				freqofs = freqofs2;
+				preset_changed = true;
+			}
+
+			res_edit.GetWindowText(text);
+			float res2 = pfc::clip_t<t_float32>(_ttoi(text), ResonanceMin, ResonanceMax) /10.0;
+			if (res_s != text)
+			{
+				res = res2;
+				preset_changed = true;
+			}
+
+			freq_edit.GetWindowText(text);
+			float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
+			if (freq_s != text)
+			{
+				freq = freq2;
+				preset_changed = true;
+			}
+
+			depth_edit.GetWindowText(text);
+			float depth2 = pfc::clip_t<t_float32>(_ttoi(text), 0, DepthMax) / 100.0;
+			if (depth_s != text)
+			{
+				depth = depth2;
+				preset_changed = true;
+			}
+
+			startphase_edit.GetWindowText(text);
+			float startphase2 = pfc::clip_t<t_int32>(_ttoi(text), 0, StartPhaseMax) / 100.0;
+			if (startphase_s != text)
+			{
+				startphase = startphase2;
+				preset_changed = true;
+			}
+
+			if (preset_changed)
+			{
+				slider_freq.SetPos((double)(10 * freq));
+				slider_startphase.SetPos((double)(100 * startphase));
+				slider_freqofs.SetPos((double)(100 * freqofs));
+				slider_depth.SetPos((double)(100 * depth));
+				slider_res.SetPos((double)(10 * res));
+				RefreshLabel(freq, depth, startphase, freqofs, res);
+				OnConfigChanged();
+			}
+		}
+
 
 		void GetConfig()
 		{
@@ -383,25 +449,29 @@ namespace {
 		void RefreshLabel(float freq, float depth, float startphase, float freqofs, float res)
 		{
 			pfc::string_formatter msg;
-			msg << "LFO Frequency: ";
-			msg << pfc::format_float(freq, 0, 1) << " Hz";
-			::uSetDlgItemText(*this, IDC_WAHLFOFREQINFO1, msg);
+			msg << pfc::format_float(freq, 0, 1);
+			freq_s = msg.c_str();
+			freq_edit.SetWindowText(freq_s);
 			msg.reset();
-			msg << "Depth: ";
-			msg << pfc::format_int(depth * 100) << "%";
-			::uSetDlgItemText(*this, IDC_WAHDEPTHINFO1, msg);
+
+			msg << pfc::format_int(depth * 100);
+			depth_s = msg.c_str();
+		    depth_edit.SetWindowText(depth_s);
 			msg.reset();
-			msg << "LFO Starting Phase: ";
-			msg << pfc::format_int(startphase * 100) << " (deg.)";
-			::uSetDlgItemText(*this, IDC_WAHLFOPHASEINFO1, msg);
+
+			msg << pfc::format_int(startphase * 100);
+			startphase_s = msg.c_str();
+			startphase_edit.SetWindowText(startphase_s);
 			msg.reset();
-			msg << "Wah Frequency Offset: ";
-			msg << pfc::format_int(freqofs * 100) << "%";
-			::uSetDlgItemText(*this, IDC_WAHFREQOFFSETINFO1, msg);
+
+			msg << pfc::format_int(freqofs * 100);
+			freqofs_s = msg.c_str();
+			freqofs_edit.SetWindowText(freqofs_s);
 			msg.reset();
-			msg << "Resonance: ";
-			msg << pfc::format_float(res, 0, 1) << "";
-			::uSetDlgItemText(*this, IDC_WAHRESONANCEINFO1, msg);
+
+			msg << pfc::format_float(res, 0, 1);
+			res_s = msg.c_str();
+			res_edit.SetWindowText(res_s);
 			msg.reset();
 		}
 
@@ -409,6 +479,8 @@ namespace {
 		float freq;
 		float depth, startphase;
 		float freqofs, res;
+		CEditMod freq_edit, startphase_edit, freqofs_edit, depth_edit, res_edit;
+		CString freq_s, startphase_s, freqofs_s, depth_s, res_s;
 		CTrackBarCtrl slider_freq, slider_startphase, slider_freqofs, slider_depth, slider_res;
 		CButton m_buttonWahEnabled;
 		bool m_ownWahUpdate;
@@ -481,9 +553,19 @@ namespace {
 			COMMAND_HANDLER_EX(IDOK, BN_CLICKED, OnButton)
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 			MSG_WM_HSCROLL(OnHScroll)
+			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
 	private:
+		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (wParam == 0x1988)
+			{
+				GetEditText();
+			}
+			return 0;
+		}
+
 		fb2k::CDarkModeHooks m_hooks;
 		void DSPConfigChange(dsp_chain_config const & cfg)
 		{
@@ -562,28 +644,91 @@ namespace {
 
 		}
 
+
+		void GetEditText()
+		{
+			bool preset_changed = false;
+			CString text;
+			freqofs_edit.GetWindowText(text);
+			float freqofs2 = pfc::clip_t<t_float32>(_ttoi(text), FrequencyOffsetMin, FrequencyOffsetMax) / FrequencyOffsetMax;
+			if (freqofs_s != text)
+			{
+				freqofs = freqofs2;
+				preset_changed = true;
+			}
+
+			res_edit.GetWindowText(text);
+			float res2 = pfc::clip_t<t_float32>(_ttoi(text), ResonanceMin, ResonanceMax) / 10.0;
+			if (res_s != text)
+			{
+				res = res2;
+				preset_changed = true;
+			}
+
+			freq_edit.GetWindowText(text);
+			float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
+			if (freq_s != text)
+			{
+				freq = freq2;
+				preset_changed = true;
+			}
+
+			depth_edit.GetWindowText(text);
+			float depth2 = pfc::clip_t<t_float32>(_ttoi(text), 0, DepthMax) / 100.0;
+			if (depth_s != text)
+			{
+				depth = depth2;
+				preset_changed = true;
+			}
+
+			startphase_edit.GetWindowText(text);
+			float startphase2 = pfc::clip_t<t_int32>(_ttoi(text), 0, StartPhaseMax) / 100.0;
+			if (startphase_s != text)
+			{
+				startphase = startphase2;
+				preset_changed = true;
+			}
+
+			if (preset_changed)
+			{
+				slider_freq.SetPos((double)(10 * freq));
+				slider_startphase.SetPos((double)(100 * startphase));
+				slider_freqofs.SetPos((double)(100 * freqofs));
+				slider_depth.SetPos((double)(100 * depth));
+				slider_res.SetPos((double)(10 * res));
+				RefreshLabel(freq, depth, startphase, freqofs, res);
+				dsp_preset_impl preset;
+				dsp_wahwah::make_preset(freq, depth, startphase, freqofs, res, true, preset);
+				m_callback.on_preset_changed(preset);
+			}
+		}
+
 		void RefreshLabel(float freq, float depth, float startphase, float freqofs, float res)
 		{
 			pfc::string_formatter msg;
-			msg << "LFO Frequency: ";
-			msg << pfc::format_float(freq, 0, 1) << " Hz";
-			::uSetDlgItemText(*this, IDC_WAHLFOFREQINFO, msg);
+			msg << pfc::format_float(freq, 0, 1);
+			freq_s = msg.c_str();
+			freq_edit.SetWindowText(freq_s);
 			msg.reset();
-			msg << "Depth: ";
-			msg << pfc::format_int(depth * 100) << "%";
-			::uSetDlgItemText(*this, IDC_WAHDEPTHINFO, msg);
+
+			msg << pfc::format_int(depth * 100);
+			depth_s = msg.c_str();
+			depth_edit.SetWindowText(depth_s);
 			msg.reset();
-			msg << "LFO Starting Phase: ";
-			msg << pfc::format_int(startphase * 100) << " (deg.)";
-			::uSetDlgItemText(*this, IDC_WAHLFOPHASEINFO, msg);
+
+			msg << pfc::format_int(startphase * 100);
+			startphase_s = msg.c_str();
+			startphase_edit.SetWindowText(startphase_s);
 			msg.reset();
-			msg << "Wah Frequency Offset: ";
-			msg << pfc::format_int(freqofs * 100) << "%";
-			::uSetDlgItemText(*this, IDC_WAHFREQOFFSETINFO, msg);
+
+			msg << pfc::format_int(freqofs * 100);
+			freqofs_s = msg.c_str();
+			freqofs_edit.SetWindowText(freqofs_s);
 			msg.reset();
-			msg << "Resonance: ";
-			msg << pfc::format_float(res, 0, 1) << "";
-			::uSetDlgItemText(*this, IDC_WAHRESONANCEINFO, msg);
+
+			msg << pfc::format_float(res, 0, 1);
+			res_s = msg.c_str();
+			res_edit.SetWindowText(res_s);
 			msg.reset();
 		}
 
@@ -592,6 +737,8 @@ namespace {
 		float freq;
 		float depth, startphase;
 		float freqofs, res;
+		CEditMod freq_edit, startphase_edit, freqofs_edit, depth_edit, res_edit;
+		CString freq_s, startphase_s, freqofs_s, depth_s, res_s;
 		CTrackBarCtrl slider_freq, slider_startphase, slider_freqofs, slider_depth, slider_res;
 	};
 

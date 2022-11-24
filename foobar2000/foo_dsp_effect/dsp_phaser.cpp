@@ -202,6 +202,7 @@ public:
 		MSG_WM_INITDIALOG(OnInitDialog)
 		COMMAND_HANDLER_EX(IDC_PHASERENABLED, BN_CLICKED, OnEnabledToggle)
 		MSG_WM_HSCROLL(OnScroll)
+		MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 	END_MSG_MAP()
 
 
@@ -252,6 +253,17 @@ public:
 	}
 
 private:
+
+	LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if (wParam == 0x1988)
+		{
+			GetEditText();
+		}
+		return 0;
+	}
+
+
 	fb2k::CDarkModeHooks m_hooks;
 	void SetPhaserEnabled(bool state) { m_buttonPhaserEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 	bool IsPhaserEnabled() { return m_buttonPhaserEnabled == NULL || m_buttonPhaserEnabled.GetCheck() == BST_CHECKED; }
@@ -340,6 +352,72 @@ private:
 
 	}
 
+	void GetEditText()
+	{
+		bool preset_changed = false;
+		CString text, text2, text3, text4, text5, text6;
+
+		float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
+
+		if (freq_s != text)
+		{
+			freq = freq2;
+			preset_changed = true;
+		}
+
+		float startphase2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, StartPhaseMax);
+
+		if (startphase_s != text)
+		{
+			startphase = startphase2;
+			preset_changed = true;
+		}
+
+		float fb2 = pfc::clip_t<t_int32>(_ttoi(text3), -100, 100);
+
+		if (fb_s != text)
+		{
+			fb = fb2;
+			preset_changed = true;
+		}
+
+		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 255) / 100.0;
+
+		if (depth_s != text)
+		{
+			depth = depth2;
+			preset_changed = true;
+		}
+
+		float stages2 = pfc::clip_t<t_int32>(_ttoi(text5), StagesMin, StagesMax);
+
+		if (stages_s != text)
+		{
+			stages = stages2;
+			preset_changed = true;
+		}
+
+		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100) / 100.0;
+
+		if (drywet_s != text)
+		{
+			drywet = drywet2;
+			preset_changed = true;
+		}
+
+		if (preset_changed)
+		{
+			slider_freq.SetPos((double)(10 * freq));
+			slider_startphase.SetPos(startphase);
+			slider_fb.SetPos(fb);
+			slider_depth.SetPos(depth);
+			slider_stages.SetPos(stages);
+			slider_drywet.SetPos(drywet);
+			RefreshLabel(freq, startphase, fb, depth, stages, drywet);
+			OnConfigChanged();
+		}
+	}
+
 
 	void GetConfig()
 	{
@@ -383,6 +461,19 @@ private:
 		slider_drywet = GetDlgItem(IDC_PHASERSDRYWET1);
 		slider_drywet.SetRange(0, 255);
 
+		freq_edit.AttachToDlgItem(m_hWnd);
+		freq_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASELFOFREQUI));
+		startphase_edit.AttachToDlgItem(m_hWnd);
+		startphase_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASESTARTPHASEUI));
+		fb_edit.AttachToDlgItem(m_hWnd);
+		fb_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASEFBUI));
+		depth_edit.AttachToDlgItem(m_hWnd);
+		depth_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASEDEPTHUI));
+		stages_edit.AttachToDlgItem(m_hWnd);
+		stages_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASERSTAGESUI));
+		drywet_edit.AttachToDlgItem(m_hWnd);
+		drywet_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASEDRYWETUI));
+
 		m_buttonPhaserEnabled = GetDlgItem(IDC_PHASERENABLED);
 		m_ownPhaserUpdate = false;
 
@@ -394,30 +485,37 @@ private:
 	void RefreshLabel(float freq, float startphase, float fb, int depth, int stages, int drywet)
 	{
 		pfc::string_formatter msg;
-		msg << "LFO Frequency: ";
-		msg << pfc::format_float(freq, 0, 1) << " Hz";
-		::uSetDlgItemText(*this, IDC_PHASERSLFOFREQINFO1, msg);
-		msg.reset();
-		msg << "LFO Start Phase : ";
-		msg << pfc::format_int(startphase) << " (.deg)";
-		::uSetDlgItemText(*this, IDC_PHASERSLFOSTARTPHASEINFO1, msg);
-		msg.reset();
-		msg << "Feedback: ";
-		msg << pfc::format_int(fb) << "%";
-		::uSetDlgItemText(*this, IDC_PHASERSFEEDBACKINFO1, msg);
-		msg.reset();
-		msg << "Depth: ";
-		msg << pfc::format_int(depth) << "";
-		::uSetDlgItemText(*this, IDC_PHASERSDEPTHINFO1, msg);
-		msg.reset();
-		msg << "Stages: ";
-		msg << pfc::format_int(stages) << "";
-		::uSetDlgItemText(*this, IDC_PHASERSTAGESINFO1, msg);
-		msg.reset();
-		msg << "Dry/Wet: ";
-		msg << pfc::format_int(drywet) << "";
-		::uSetDlgItemText(*this, IDC_PHASERDRYWETINFO1, msg);
 
+		msg << pfc::format_float(freq, 0, 1);
+		freq_s = msg.c_str();
+		freq_edit.SetWindowText(freq_s);
+		msg.reset();
+
+		
+		msg << pfc::format_int(startphase);
+		startphase_s = msg.c_str();
+		startphase_edit.SetWindowText(startphase_s);
+		msg.reset();
+		
+		msg << pfc::format_int(fb);
+		fb_s = msg.c_str();
+		fb_edit.SetWindowText(fb_s);
+		msg.reset();
+
+		msg << pfc::format_int(depth);
+		depth_s = msg.c_str();
+		startphase_edit.SetWindowText(depth_s);
+		msg.reset();
+
+		msg << pfc::format_int(stages);
+		stages_s = msg.c_str();
+		startphase_edit.SetWindowText(stages_s);
+		msg.reset();
+
+		msg << pfc::format_int(drywet);
+		drywet_s = msg.c_str();
+		startphase_edit.SetWindowText(drywet_s);
+		msg.reset();
 	}
 
 	bool phaser_enabled;
@@ -427,6 +525,11 @@ private:
 	int depth;//0-255
 	int stages; //2-24
 	int drywet; //0-255
+
+
+	CEditMod freq_edit, startphase_edit, fb_edit, depth_edit, stages_edit, drywet_edit;
+	CString freq_s, startphase_s, fb_s,depth_s,stages_s,drywet_s;
+
 	CTrackBarCtrl slider_freq, slider_startphase, slider_fb, slider_depth, slider_stages, slider_drywet;
 	CButton m_buttonPhaserEnabled;
 	bool m_ownPhaserUpdate;
@@ -503,9 +606,20 @@ public:
 		COMMAND_HANDLER_EX(IDOK, BN_CLICKED, OnButton)
 		COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 		MSG_WM_HSCROLL(OnHScroll)
+		MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 	END_MSG_MAP()
 
 private:
+	LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if (wParam == 0x1988)
+		{
+			GetEditText();
+		}
+		return 0;
+	}
+
+
 	fb2k::CDarkModeHooks m_hooks;
 	void DSPConfigChange(dsp_chain_config const & cfg)
 	{
@@ -530,6 +644,76 @@ private:
 		}
 	}
 
+
+	void GetEditText()
+	{
+		bool preset_changed = false;
+		CString text, text2, text3, text4, text5,text6;
+
+		float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
+
+		if (freq_s != text)
+		{
+			freq = freq2;
+			preset_changed = true;
+		}
+
+		float startphase2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, StartPhaseMax);
+
+		if (startphase_s != text)
+		{
+			startphase = startphase2;
+			preset_changed = true;
+		}
+
+		float fb2 = pfc::clip_t<t_int32>(_ttoi(text3), -100, 100);
+
+		if (fb_s != text)
+		{
+			fb = fb2;
+			preset_changed = true;
+		}
+
+		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 255) / 100.0;
+
+		if (depth_s != text)
+		{
+			depth = depth2;
+			preset_changed = true;
+		}
+
+		float stages2 = pfc::clip_t<t_int32>(_ttoi(text5), StagesMin, StagesMax);
+
+		if (stages_s != text)
+		{
+			stages = stages2;
+			preset_changed = true;
+		}
+
+		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100) / 100.0;
+
+		if (drywet_s != text)
+		{
+			drywet = drywet2;
+			preset_changed = true;
+		}
+
+		if (preset_changed)
+		{
+			slider_freq.SetPos((double)(10 * freq));
+			slider_startphase.SetPos(startphase);
+			slider_fb.SetPos(fb);
+			slider_depth.SetPos(depth);
+			slider_stages.SetPos(stages);
+			slider_drywet.SetPos(drywet);
+			RefreshLabel(freq, startphase, fb, depth, stages, drywet);
+			dsp_preset_impl preset;
+			dsp_phaser::make_preset(freq, startphase, fb, depth, stages, drywet, true, preset);
+			m_callback.on_preset_changed(preset);
+
+		}
+	}
+
 	BOOL OnInitDialog(CWindow, LPARAM)
 	{
 		slider_freq = GetDlgItem(IDC_PHASERSLFOFREQ);
@@ -544,6 +728,22 @@ private:
 		slider_stages.SetRange(StagesMin, StagesMax);
 		slider_drywet = GetDlgItem(IDC_PHASERSDRYWET);
 		slider_drywet.SetRange(0, 255);
+
+
+
+		freq_edit.AttachToDlgItem(m_hWnd);
+		freq_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASERFREQ));
+		startphase_edit.AttachToDlgItem(m_hWnd);
+		startphase_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASERSTART));
+		fb_edit.AttachToDlgItem(m_hWnd);
+		fb_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASERFB));
+		depth_edit.AttachToDlgItem(m_hWnd);
+		depth_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASERDEPTH));
+		stages_edit.AttachToDlgItem(m_hWnd);
+		stages_edit.SubclassWindow(GetDlgItem(IDC_EDITEPHASERSTAGES));
+		drywet_edit.AttachToDlgItem(m_hWnd);
+		drywet_edit.SubclassWindow(GetDlgItem(IDC_EDITPHASERDRYWET));
+
 		{
 			bool enabled;
 			dsp_phaser::parse_preset(freq, startphase, fb, depth, stages, drywet, enabled, m_initData);
@@ -588,30 +788,37 @@ private:
 	void RefreshLabel(float freq, float startphase, float fb, int depth, int stages, int drywet)
 	{
 		pfc::string_formatter msg;
-		msg << "LFO Frequency: ";
-		msg << pfc::format_float(freq, 0, 1) << " Hz";
-		::uSetDlgItemText(*this, IDC_PHASERSLFOFREQINFO, msg);
-		msg.reset();
-		msg << "LFO Start Phase : ";
-		msg << pfc::format_int(startphase) << " (.deg)";
-		::uSetDlgItemText(*this, IDC_PHASERSLFOSTARTPHASEINFO, msg);
-		msg.reset();
-		msg << "Feedback: ";
-		msg << pfc::format_int(fb) << "%";
-		::uSetDlgItemText(*this, IDC_PHASERSFEEDBACKINFO, msg);
-		msg.reset();
-		msg << "Depth: ";
-		msg << pfc::format_int(depth) << "";
-		::uSetDlgItemText(*this, IDC_PHASERSDEPTHINFO, msg);
-		msg.reset();
-		msg << "Stages: ";
-		msg << pfc::format_int(stages) << "";
-		::uSetDlgItemText(*this, IDC_PHASERSTAGESINFO, msg);
-		msg.reset();
-		msg << "Dry/Wet: ";
-		msg << pfc::format_int(drywet) << "";
-		::uSetDlgItemText(*this, IDC_PHASERDRYWETINFO, msg);
 
+		msg << pfc::format_float(freq, 0, 1);
+		freq_s = msg.c_str();
+		freq_edit.SetWindowText(freq_s);
+		msg.reset();
+
+
+		msg << pfc::format_int(startphase);
+		startphase_s = msg.c_str();
+		startphase_edit.SetWindowText(startphase_s);
+		msg.reset();
+
+		msg << pfc::format_int(fb);
+		fb_s = msg.c_str();
+		fb_edit.SetWindowText(fb_s);
+		msg.reset();
+
+		msg << pfc::format_int(depth);
+		depth_s = msg.c_str();
+		startphase_edit.SetWindowText(depth_s);
+		msg.reset();
+
+		msg << pfc::format_int(stages);
+		stages_s = msg.c_str();
+		startphase_edit.SetWindowText(stages_s);
+		msg.reset();
+
+		msg << pfc::format_int(drywet);
+		drywet_s = msg.c_str();
+		startphase_edit.SetWindowText(drywet_s);
+		msg.reset();
 	}
 
 	const dsp_preset & m_initData; // modal dialog so we can reference this caller-owned object.
@@ -622,6 +829,8 @@ private:
 	int depth;//0-255
 	int stages; //2-24
 	int drywet; //0-255  
+	CEditMod freq_edit, startphase_edit, fb_edit, depth_edit, stages_edit, drywet_edit;
+	CString freq_s, startphase_s, fb_s, depth_s, stages_s, drywet_s;
 	CTrackBarCtrl slider_freq, slider_startphase, slider_fb, slider_depth, slider_stages, slider_drywet;
 };
 
