@@ -395,7 +395,7 @@ namespace {
 				slider_startphase.SetPos((double)(100 * startphase));
 				slider_freqofs.SetPos((double)(100 * freqofs));
 				slider_depth.SetPos((double)(100 * depth));
-				slider_res.SetPos((double)(10 * res));
+				slider_res.SetPos((double)(100 * res));
 				RefreshLabel(freq, depth, startphase, freqofs, res);
 				OnConfigChanged();
 			}
@@ -408,7 +408,7 @@ namespace {
 			depth = slider_depth.GetPos() / 100.0;
 			startphase = slider_startphase.GetPos() / 100.0;
 			freqofs = slider_freqofs.GetPos() / 100.0;
-			res = slider_res.GetPos() / 10.0;
+			res = slider_res.GetPos() / 100.0;
 			wah_enabled = IsWahEnabled();
 			RefreshLabel(freq, depth, startphase, freqofs, res);
 		}
@@ -419,7 +419,7 @@ namespace {
 			slider_startphase.SetPos((double)(100 * startphase));
 			slider_freqofs.SetPos((double)(100 * freqofs));
 			slider_depth.SetPos((double)(100 * depth));
-			slider_res.SetPos((double)(10 * res));
+			slider_res.SetPos((double)(100 * res));
 
 			RefreshLabel(freq, depth, startphase, freqofs, res);
 
@@ -437,6 +437,17 @@ namespace {
 			slider_depth.SetRange(0, 100);
 			slider_res = GetDlgItem(IDC_WAHRESONANCE1);
 			slider_res.SetRange(0, 100);
+
+			freq_edit.AttachToDlgItem(m_hWnd);
+			freq_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHFREQUI));
+			startphase_edit.AttachToDlgItem(m_hWnd);
+			startphase_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHPHASEUI));
+			freqofs_edit.AttachToDlgItem(m_hWnd);
+			freqofs_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHOFFUI));
+			depth_edit.AttachToDlgItem(m_hWnd);
+			depth_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHDEPTHUI));
+			res_edit.AttachToDlgItem(m_hWnd);
+			res_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHRESUI));
 
 			m_buttonWahEnabled = GetDlgItem(IDC_WAHENABLED);
 			m_ownWahUpdate = false;
@@ -469,7 +480,7 @@ namespace {
 			freqofs_edit.SetWindowText(freqofs_s);
 			msg.reset();
 
-			msg << pfc::format_float(res, 0, 1);
+			msg << pfc::format_int(res*100);
 			res_s = msg.c_str();
 			res_edit.SetWindowText(res_s);
 			msg.reset();
@@ -585,7 +596,7 @@ namespace {
 				slider_startphase.SetPos((double)(100 * startphase));
 				slider_freqofs.SetPos((double)(100 * freqofs));
 				slider_depth.SetPos((double)(100 * depth));
-				slider_res.SetPos((double)(10 * res));
+				slider_res.SetPos((double)(100 * res));
 
 				RefreshLabel(freq, depth, startphase, freqofs, res);
 			}
@@ -604,6 +615,17 @@ namespace {
 			slider_res = GetDlgItem(IDC_WAHRESONANCE);
 			slider_res.SetRange(0, 100);
 
+			freq_edit.AttachToDlgItem(m_hWnd);
+			freq_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHFREQ));
+			startphase_edit.AttachToDlgItem(m_hWnd);
+			startphase_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHPHASE));
+			freqofs_edit.AttachToDlgItem(m_hWnd);
+			freqofs_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHOFF));
+			depth_edit.AttachToDlgItem(m_hWnd);
+			depth_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHDEPTH));
+			res_edit.AttachToDlgItem(m_hWnd);
+			res_edit.SubclassWindow(GetDlgItem(IDC_EDITWAHRES));
+
 			{
 				bool enabled;
 				dsp_wahwah::parse_preset(freq, depth, startphase, freqofs, res, enabled, m_initData);
@@ -612,7 +634,7 @@ namespace {
 				slider_startphase.SetPos((double)(100 * startphase));
 				slider_freqofs.SetPos((double)(100 * freqofs));
 				slider_depth.SetPos((double)(100 * depth));
-				slider_res.SetPos((double)(10 * res));
+				slider_res.SetPos((double)(100 * res));
 
 				RefreshLabel(freq, depth, startphase, freqofs, res);
 
@@ -695,7 +717,7 @@ namespace {
 				slider_startphase.SetPos((double)(100 * startphase));
 				slider_freqofs.SetPos((double)(100 * freqofs));
 				slider_depth.SetPos((double)(100 * depth));
-				slider_res.SetPos((double)(10 * res));
+				slider_res.SetPos((double)(100 * res));
 				RefreshLabel(freq, depth, startphase, freqofs, res);
 				dsp_preset_impl preset;
 				dsp_wahwah::make_preset(freq, depth, startphase, freqofs, res, true, preset);
@@ -726,7 +748,7 @@ namespace {
 			freqofs_edit.SetWindowText(freqofs_s);
 			msg.reset();
 
-			msg << pfc::format_float(res, 0, 1);
+			msg << pfc::format_int(res*100);
 			res_s = msg.c_str();
 			res_edit.SetWindowText(res_s);
 			msg.reset();

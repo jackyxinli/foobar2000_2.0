@@ -221,11 +221,12 @@
 #define IDC_EDITECHOFEEDELEM            1302
 #define IDC_EDITECHODELAY               1303
 #define IDC_EDITECHOFEED                1304
-#define IDC_EDITECHODELAY2              1304
-#define IDC_EDITECHODELAY3              1305
-#define IDC_EDITECHODELAY4              1306
-#define IDC_EDITECHODELAY5              1307
+#define IDC_EDITWAHDEPTHUI              1304
+#define IDC_EDITWAHRESUI                1305
+#define IDC_EDITWAHOFFUI                1306
+#define IDC_EDITWAHFREQUI               1307
 #define IDC_EDITECHODELAY6              1308
+#define IDC_EDITWAHPHASEUI              1308
 #define IDC_EDITEPHASERSTAGES           1309
 #define IDC_EDITPHASERDRYWET            1310
 #define IDC_EDITPHASERFREQ              1311
@@ -251,8 +252,12 @@
 #define IDC_EDITFREEWET1                1331
 #define IDC_EDITFREEDAMP1               1332
 #define IDC_EDITFREERS1                 1333
-#define IDC_EDITFREEROOMW1              1334
 #define IDC_EDITFREEW1                  1334
+#define IDC_EDITWAHDEPTH                1336
+#define IDC_EDITWAHRES                  1337
+#define IDC_EDITWAHOFF                  1338
+#define IDC_EDITWAHFREQ                 1339
+#define IDC_EDITWAHPHASE                1340
 #define IDC_SLIDER                      -1
 
 // Next default values for new objects
@@ -261,7 +266,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1336
+#define _APS_NEXT_CONTROL_VALUE         1341
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

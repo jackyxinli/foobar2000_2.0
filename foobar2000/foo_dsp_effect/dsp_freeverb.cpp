@@ -433,15 +433,15 @@ namespace {
 			slider_roomsize.SetRange(0, roomsizetotal);
 
 			drytime_edit.AttachToDlgItem(m_hWnd);
-			drytime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDRY));
+			drytime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDRY1));
 			wettime_edit.AttachToDlgItem(m_hWnd);
-			wettime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEWET));
+			wettime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEWET1));
 			dampness_edit.AttachToDlgItem(m_hWnd);
-			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP));
+			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP1));
 			roomwidth_edit.AttachToDlgItem(m_hWnd);
-			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERW));
+			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEW1));
 			roomsize_edit.AttachToDlgItem(m_hWnd);
-			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERSZ));
+			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERS1));
 
 			m_buttonReverbEnabled = GetDlgItem(IDC_FREEVERBENABLE);
 			m_ownReverbUpdate = false;
@@ -464,14 +464,17 @@ namespace {
 			sWindowText = msg.c_str();
 			wettime_s = sWindowText;
 			wettime_edit.SetWindowText(sWindowText);
+			msg.reset();
 			msg << pfc::format_int(dampness * 100);
 			sWindowText = msg.c_str();
 			dampness_s = sWindowText;
 			dampness_edit.SetWindowText(sWindowText);
+			msg.reset();
 			msg << pfc::format_int(roomwidth * 100);
 			sWindowText = msg.c_str();
 			roomwidth_s = sWindowText;
 			roomwidth_edit.SetWindowText(sWindowText);
+			msg.reset();
 			msg << pfc::format_int(roomsize * 100);
 			sWindowText = msg.c_str();
 			roomsize_s = sWindowText;
@@ -671,15 +674,15 @@ namespace {
 			slider_roomsize.SetRange(0, roomsizetotal);
 
 			drytime_edit.AttachToDlgItem(m_hWnd);
-			drytime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDRY1));
+			drytime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDRY));
 			wettime_edit.AttachToDlgItem(m_hWnd);
-			wettime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEWET1));
+			wettime_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEWET));
 			dampness_edit.AttachToDlgItem(m_hWnd);
-			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP1));
+			dampness_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEDAMP));
 			roomwidth_edit.AttachToDlgItem(m_hWnd);
-			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREEW1));
+			roomwidth_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERW));
 			roomsize_edit.AttachToDlgItem(m_hWnd);
-			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERS1));
+			roomsize_edit.SubclassWindow(GetDlgItem(IDC_EDITFREERSZ));
 
 			{
 				bool enabled;
@@ -731,16 +734,19 @@ namespace {
 			sWindowText = msg.c_str();
 			wettime_s = sWindowText;
 			wettime_edit.SetWindowText(sWindowText);
+			msg.reset();
 			msg << pfc::format_int(dampness * 100);
 			sWindowText = msg.c_str();
 			dampness_s = sWindowText;
 			dampness_edit.SetWindowText(sWindowText);
+			msg.reset();
 			msg << pfc::format_int(roomwidth * 100);
 			sWindowText = msg.c_str();
 			roomwidth_s = sWindowText;
 			roomwidth_edit.SetWindowText(sWindowText);
 			msg << pfc::format_int(roomsize * 100);
 			sWindowText = msg.c_str();
+			msg.reset();
 			roomsize_s = sWindowText;
 			roomsize_edit.SetWindowText(sWindowText);
 		}

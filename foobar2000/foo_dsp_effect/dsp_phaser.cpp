@@ -189,13 +189,13 @@ public:
 		FeedbackMax = 100,
 		FeedbackRangeTotal = 200,
 		DepthMin = 0,
-		DepthMax = 255,
+		DepthMax = 256,
 		DepthRangeTotal = 255,
 		StagesMin = 1,
 		StagesMax = 24,
 		StagesRangeTotal = 24,
 		DryWetMin = 0,
-		DryWetMax = 255,
+		DryWetMax = 256,
 		DryWetRangeTotal = 255
 	};
 	BEGIN_MSG_MAP(uielem_phaser)
@@ -381,11 +381,11 @@ private:
 			preset_changed = true;
 		}
 
-		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 255) / 100.0;
+		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 100);
 
 		if (depth_s != text)
 		{
-			depth = depth2;
+			depth = (depth2 / 100 * 256);
 			preset_changed = true;
 		}
 
@@ -397,11 +397,11 @@ private:
 			preset_changed = true;
 		}
 
-		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100) / 100.0;
+		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100);
 
 		if (drywet_s != text)
 		{
-			drywet = drywet2;
+			drywet = (drywet2 / 100 * 256);
 			preset_changed = true;
 		}
 
@@ -482,6 +482,7 @@ private:
 		return TRUE;
 	}
 
+
 	void RefreshLabel(float freq, float startphase, float fb, int depth, int stages, int drywet)
 	{
 		pfc::string_formatter msg;
@@ -491,30 +492,29 @@ private:
 		freq_edit.SetWindowText(freq_s);
 		msg.reset();
 
-		
+
 		msg << pfc::format_int(startphase);
 		startphase_s = msg.c_str();
 		startphase_edit.SetWindowText(startphase_s);
 		msg.reset();
-		
+
 		msg << pfc::format_int(fb);
 		fb_s = msg.c_str();
 		fb_edit.SetWindowText(fb_s);
 		msg.reset();
-
-		msg << pfc::format_int(depth);
+		msg << pfc::format_int(depth * 100 / 256);
 		depth_s = msg.c_str();
-		startphase_edit.SetWindowText(depth_s);
+		depth_edit.SetWindowText(depth_s);
 		msg.reset();
 
 		msg << pfc::format_int(stages);
 		stages_s = msg.c_str();
-		startphase_edit.SetWindowText(stages_s);
+		stages_edit.SetWindowText(stages_s);
 		msg.reset();
 
-		msg << pfc::format_int(drywet);
+		msg << pfc::format_int(drywet * 100 / 256);
 		drywet_s = msg.c_str();
-		startphase_edit.SetWindowText(drywet_s);
+		drywet_edit.SetWindowText(drywet_s);
 		msg.reset();
 	}
 
@@ -591,13 +591,13 @@ public:
 		FeedbackMax = 100,
 		FeedbackRangeTotal = 200,
 		DepthMin = 0,
-		DepthMax = 255,
+		DepthMax = 256,
 		DepthRangeTotal = 255,
 		StagesMin = 1,
 		StagesMax = 24,
 		StagesRangeTotal = 24,
 		DryWetMin = 0,
-		DryWetMax = 255,
+		DryWetMax = 256,
 		DryWetRangeTotal = 255
 	};
 
@@ -645,10 +645,11 @@ private:
 	}
 
 
+
 	void GetEditText()
 	{
 		bool preset_changed = false;
-		CString text, text2, text3, text4, text5,text6;
+		CString text, text2, text3, text4, text5, text6;
 
 		float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
 
@@ -674,11 +675,11 @@ private:
 			preset_changed = true;
 		}
 
-		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 255) / 100.0;
+		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 100);
 
 		if (depth_s != text)
 		{
-			depth = depth2;
+			depth = (depth2 / 100 * 256);
 			preset_changed = true;
 		}
 
@@ -690,11 +691,11 @@ private:
 			preset_changed = true;
 		}
 
-		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100) / 100.0;
+		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100);
 
 		if (drywet_s != text)
 		{
-			drywet = drywet2;
+			drywet = (drywet2 / 100 * 256);
 			preset_changed = true;
 		}
 
@@ -804,20 +805,19 @@ private:
 		fb_s = msg.c_str();
 		fb_edit.SetWindowText(fb_s);
 		msg.reset();
-
-		msg << pfc::format_int(depth);
+		msg << pfc::format_int(depth * 100 / 256);
 		depth_s = msg.c_str();
-		startphase_edit.SetWindowText(depth_s);
+		depth_edit.SetWindowText(depth_s);
 		msg.reset();
 
 		msg << pfc::format_int(stages);
 		stages_s = msg.c_str();
-		startphase_edit.SetWindowText(stages_s);
+		stages_edit.SetWindowText(stages_s);
 		msg.reset();
 
-		msg << pfc::format_int(drywet);
+		msg << pfc::format_int(drywet * 100 / 256);
 		drywet_s = msg.c_str();
-		startphase_edit.SetWindowText(drywet_s);
+		drywet_edit.SetWindowText(drywet_s);
 		msg.reset();
 	}
 
