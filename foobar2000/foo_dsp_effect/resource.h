@@ -113,6 +113,7 @@
 #define IDC_PHASERSDEPTHINFO1           1115
 #define IDC_PHASERSFEEDBACK1            1116
 #define IDC_PHASERSFEEDBACKINFO1        1117
+#define IDC_STATIC6                     1117
 #define IDC_DRYTIME1                    1118
 #define IDC_DRYTIMEINFO1                1119
 #define IDC_WETTIME1                    1120
@@ -122,6 +123,7 @@
 #define IDC_ROOMSIZEINFO1               1124
 #define IDC_ROOMWIDTH1                  1125
 #define IDC_ROOMWIDTHINFO1              1126
+#define IDC_STATIC5                     1126
 #define IDC_FREEVERBENABLE              1127
 #define IDC_DAMPING1                    1128
 #define IDC_WAHDEPTH1                   1129
@@ -166,6 +168,7 @@
 #define IDC_ECHOENABLED                 1177
 #define IDC_SLIDER_MS1                  1178
 #define IDC_SLIDER_LABEL_MS1            1179
+#define IDC_STATIC1                     1179
 #define IDC_SLIDER_FB1                  1180
 #define IDC_SLIDER_LABEL_FB1            1181
 #define IDC_SLIDER_AMP1                 1182
@@ -225,7 +228,6 @@
 #define IDC_EDITWAHRESUI                1305
 #define IDC_EDITWAHOFFUI                1306
 #define IDC_EDITWAHFREQUI               1307
-#define IDC_EDITECHODELAY6              1308
 #define IDC_EDITWAHPHASEUI              1308
 #define IDC_EDITEPHASERSTAGES           1309
 #define IDC_EDITPHASERDRYWET            1310
@@ -258,6 +260,9 @@
 #define IDC_EDITWAHOFF                  1338
 #define IDC_EDITWAHFREQ                 1339
 #define IDC_EDITWAHPHASE                1340
+#define IDC_STATIC2                     1341
+#define IDC_STATIC3                     1342
+#define IDC_STATIC4                     1343
 #define IDC_SLIDER                      -1
 
 // Next default values for new objects
@@ -266,7 +271,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1341
+#define _APS_NEXT_CONTROL_VALUE         1344
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

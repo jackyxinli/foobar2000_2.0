@@ -3,6 +3,7 @@
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
+#include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
 #include "wahwah.h"
 #include "dsp_guids.h"
@@ -166,11 +167,40 @@ namespace {
 	static const GUID guid_choruselem =
 	{ 0xf7d39b6, 0x43f, 0x4e5c,{ 0x8d, 0x5a, 0xa5, 0x3f, 0x42, 0xb6, 0xf, 0xcc } };
 
+	static const CDialogResizeHelper::Param chorus_uiresize[] = {
+		// Dialog resize handling matrix, defines how the controls scale with the dialog
+		//			 L T R B
+		{IDC_STATIC1, 0,0,0,0  },
+		{IDC_STATIC2, 0,0,0,0  },
+		{IDC_STATIC3, 0,0,0,0  },
+		{IDC_STATIC4, 0,0,0,0  },
+		{IDC_STATIC5, 0,0,0,0  },
+		{IDC_EDITWAHFREQUI, 0,0,0,0  },
+		{IDC_EDITWAHPHASEUI, 0,0,0,0  },
+		{IDC_EDITWAHDEPTHUI,    0,0,0,0 },
+		{IDC_EDITWAHOFFUI,    0,0,0,0  },
+		{IDC_EDITWAHRESUI, 0,0,0,0 },
+		{IDC_WAHENABLED,  0,0,0,0 },
+	{IDC_RESETCHR5,0,0,0,0 },
+	{IDC_WAHLFOFREQ1, 0,0,1,0},
+	{IDC_WAHLFOSTARTPHASE1, 0,0,1,0},
+	{IDC_WAHFREQOFFSET1, 0,0,1,0},
+	{IDC_WAHDEPTH1, 0,0,1,0},
+	{IDC_WAHRESONANCE1, 0,0,1,0},
+	// current position of a control is determined by initial_position + factor * (current_dialog_size - initial_dialog_size)
+	// where factor is the value from the table above
+	// applied to all four values - left, top, right, bottom
+	// 0,0,0,0 means that a control doesn't react to dialog resizing (aligned to top+left, no resize)
+	// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
+	// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
+	};
+	static const CRect resizeMinMax(200, 160, 1000, 1000);
+
 
 
 	class uielem_wah : public CDialogImpl<uielem_wah>, public ui_element_instance {
 	public:
-		uielem_wah(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb) {
+		uielem_wah(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
 			freq = 1.5; depth = 0.70; startphase = 0.0; freqofs = 0.3; res = 2.5; wah_enabled = true;
 
 		}
@@ -195,6 +225,7 @@ namespace {
 			FrequencyOffsetTotal = 100
 		};
 		BEGIN_MSG_MAP(uielem_wah)
+			CHAIN_MSG_MAP_MEMBER(m_resizer)
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_WAHENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
@@ -237,10 +268,10 @@ namespace {
 			}
 
 
-			ret.m_min_width = MulDiv(380, DPI.cx, 96);
-			ret.m_min_height = MulDiv(260, DPI.cy, 96);
-			ret.m_max_width = MulDiv(380, DPI.cx, 96);
-			ret.m_max_height = MulDiv(260, DPI.cy, 96);
+			ret.m_min_width = MulDiv(200, DPI.cx, 96);
+			ret.m_min_height = MulDiv(160, DPI.cy, 96);
+			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
+			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
 			// Deal with WS_EX_STATICEDGE and alike that we might have picked from host
 			ret.adjustForWindow(*this);
@@ -495,6 +526,7 @@ namespace {
 		CTrackBarCtrl slider_freq, slider_startphase, slider_freqofs, slider_depth, slider_res;
 		CButton m_buttonWahEnabled;
 		bool m_ownWahUpdate;
+		CDialogResizeHelper m_resizer;
 
 		static uint32_t parseConfig(ui_element_config::ptr cfg) {
 			return 1;
@@ -517,7 +549,7 @@ namespace {
 		uint32_t shit;
 	protected:
 		const ui_element_instance_callback::ptr m_callback;
-	};
+};
 
 	class myElem_t : public  ui_element_impl_withpopup< uielem_wah > {
 		bool get_element_group(pfc::string_base & p_out)

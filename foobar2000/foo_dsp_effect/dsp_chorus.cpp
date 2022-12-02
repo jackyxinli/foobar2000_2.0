@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include "../helpers/foobar2000+atl.h"
 #include "../helpers/DarkMode.h"
+#include "../../libPPUI/CDialogResizeHelper.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/atl-misc.h"// ui_element_impl
@@ -259,6 +260,9 @@ namespace {
 		}
 	};
 
+
+
+
 	class CMyDSPPopupChorus : public CDialogImpl<CMyDSPPopupChorus>
 	{
 	public:
@@ -501,9 +505,37 @@ namespace {
 	{ 0x5bf17f6, 0x67b2, 0x42e9,{ 0xb8, 0x54, 0xa0, 0xd0, 0xf8, 0xce, 0xd4, 0xde } };
 
 
+
+	static const CDialogResizeHelper::Param chorus_uiresize[] = {
+		// Dialog resize handling matrix, defines how the controls scale with the dialog
+		//			 L T R B
+		{IDC_STATIC, 0,0,0,0 },
+		{IDC_STATIC2,    0,0,0,0 },
+		{IDC_STATIC3,    0,0,0,0},
+		{IDC_STATIC4,    0,0,0,0 },
+		{IDC_CHORUSDELAYLAB1, 0,0,0,0},
+		{IDC_CHORUSDEPTHMSLAB1,  0,0,0,0},
+	{IDC_CHORUSLFOFREQLAB1,  0,0,0,0},
+	{IDC_CHORUSDRYWETLAB1, 0,0,0,0},
+	{IDC_CHORUSENABLED, 0,0,0,0},
+	{IDC_RESETCHRUI5,0,0,0,0},
+
+	{IDC_CHORUSDELAYMS1, 0,0,1,0},
+	{IDC_CHORUSDEPTHMS1, 0,0,1,0},
+	{IDC_CHORUSDRYWET1, 0,0,1,0},
+	{IDC_CHORUSLFOFREQ1, 0,0,1,0},
+		// current position of a control is determined by initial_position + factor * (current_dialog_size - initial_dialog_size)
+		// where factor is the value from the table above
+		// applied to all four values - left, top, right, bottom
+		// 0,0,0,0 means that a control doesn't react to dialog resizing (aligned to top+left, no resize)
+		// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
+		// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
+	};
+	static const CRect resizeMinMax(200, 150, 1000, 1000);
 	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance {
 	public:
-		uielem_chorus(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb) {
+		
+		uielem_chorus(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
 			delay_ms = 25.0;
 			depth_ms = 1.0;
 			lfo_freq = 0.8;
@@ -520,14 +552,11 @@ namespace {
 			depthmax = 100,
 		};
 	private:
-
+		
 		BEGIN_MSG_MAP_EX(uielem_chorus)
+			CHAIN_MSG_MAP_MEMBER(m_resizer)
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_CHORUSENABLED, BN_CLICKED, OnEnabledToggle)
-			COMMAND_HANDLER_EX(IDC_RESETCHRUI1, BN_CLICKED, OnReset1)
-			COMMAND_HANDLER_EX(IDC_RESETCHRUI2, BN_CLICKED, OnReset2)
-			COMMAND_HANDLER_EX(IDC_RESETCHRUI3, BN_CLICKED, OnReset3)
-			COMMAND_HANDLER_EX(IDC_RESETCHRUI4, BN_CLICKED, OnReset4)
 			COMMAND_HANDLER_EX(IDC_RESETCHRUI5, BN_CLICKED, OnReset5)
 			MSG_WM_HSCROLL(OnScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
@@ -569,10 +598,10 @@ namespace {
 			}
 
 
-			ret.m_min_width = MulDiv(520, DPI.cx, 96);
-			ret.m_min_height = MulDiv(220, DPI.cy, 96);
-			ret.m_max_width = MulDiv(520, DPI.cx, 96);
-			ret.m_max_height = MulDiv(220, DPI.cy, 96);
+			ret.m_min_width = MulDiv(200, DPI.cx, 96);
+			ret.m_min_height = MulDiv(150, DPI.cy, 96);
+			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
+			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
 			// Deal with WS_EX_STATICEDGE and alike that we might have picked from host
 			ret.adjustForWindow(*this);
@@ -881,6 +910,7 @@ namespace {
 		CTrackBarCtrl slider_depthms, slider_delayms, slider_lfofreq, slider_drywet;
 		CButton m_buttonEchoEnabled;
 		bool m_ownEchoUpdate;
+		CDialogResizeHelper m_resizer;
 	protected:
 		const ui_element_instance_callback::ptr m_callback;
 	};

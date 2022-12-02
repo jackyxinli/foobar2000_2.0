@@ -2,6 +2,7 @@
 #include "../helpers/foobar2000+atl.h"
 #include "../helpers/DarkMode.h"
 #include "../helpers/BumpableElem.h"
+#include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
 #include "echo.h"
 #include "dsp_guids.h"
@@ -139,13 +140,37 @@ namespace {
 
 	static dsp_factory_t<dsp_echo> g_dsp_echo_factory;
 
+
+	static const CDialogResizeHelper::Param chorus_uiresize[] = {
+		// Dialog resize handling matrix, defines how the controls scale with the dialog
+		//			 L T R B
+		{IDC_STATIC1, 0,0,0,0 },
+		{IDC_STATIC2,    0,0,0,0  },
+		{IDC_STATIC3,   0,0,0,0 },
+		{IDC_EDITECHODELAYELEM, 0,0,0,0 },
+		{IDC_EDITECHOVOLELEM,  0,0,0,0 },
+	{IDC_EDITECHOFEEDELEM,  0,0,0,0 },
+	{IDC_RESETCHR5,  0,0,0,0 },
+	{IDC_ECHOENABLED,  0,0,0,0},
+	{IDC_SLIDER_MS1, 0,0,1,0},
+	{IDC_SLIDER_AMP1, 0,0,1,0},
+	{IDC_SLIDER_FB1, 0,0,1,0},
+	// current position of a control is determined by initial_position + factor * (current_dialog_size - initial_dialog_size)
+	// where factor is the value from the table above
+	// applied to all four values - left, top, right, bottom
+	// 0,0,0,0 means that a control doesn't react to dialog resizing (aligned to top+left, no resize)
+	// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
+	// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
+	};
+	static const CRect resizeMinMax(150, 130, 1000, 1000);
+
 	// {1DC17CA0-0023-4266-AD59-691D566AC291}
 	static const GUID guid_choruselem
 	{ 0x634933f1, 0xbdb6, 0x4d4c,{ 0x8a, 0x68, 0x28, 0xb9, 0xd, 0xc0, 0xfe, 0x3 } };
 
 	class uielem_echo : public CDialogImpl<uielem_echo>, public ui_element_instance {
 	public:
-		uielem_echo(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb) {
+		uielem_echo(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
 			ms = 200;
 			amp = 128;
 			feedback = 128;
@@ -166,6 +191,7 @@ namespace {
 			AmpRangeTotal = AmpRangeMax - AmpRangeMin
 		};
 		BEGIN_MSG_MAP(uielem_echo)
+			CHAIN_MSG_MAP_MEMBER(m_resizer)
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_ECHOENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
@@ -208,10 +234,10 @@ namespace {
 			}
 
 
-			ret.m_min_width = MulDiv(420, DPI.cx, 96);
-			ret.m_min_height = MulDiv(240, DPI.cy, 96);
-			ret.m_max_width = MulDiv(420, DPI.cx, 96);
-			ret.m_max_height = MulDiv(240, DPI.cy, 96);
+			ret.m_min_width = MulDiv(150, DPI.cx, 96);
+			ret.m_min_height = MulDiv(130, DPI.cy, 96);
+			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
+			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
 			// Deal with WS_EX_STATICEDGE and alike that we might have picked from host
 			ret.adjustForWindow(*this);
@@ -431,6 +457,7 @@ namespace {
 		CTrackBarCtrl m_slider_ms, m_slider_amp, m_slider_fb;
 		CButton m_buttonEchoEnabled;
 		bool m_ownEchoUpdate;
+		CDialogResizeHelper m_resizer;
 
 
 		CEditMod delay_edit, vol_edit, feed_edit;

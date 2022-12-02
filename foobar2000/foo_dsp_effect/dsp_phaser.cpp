@@ -1,6 +1,7 @@
 #include "../helpers/foobar2000+atl.h"
 #include "../helpers/DarkMode.h"
 #include "../helpers/BumpableElem.h"
+#include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
 #include "Phaser.h"
 #include "dsp_guids.h"
@@ -166,10 +167,42 @@ public:
 static const GUID guid_choruselem =
 { 0xec43098, 0x824d, 0x4d5c,{ 0x80, 0x72, 0x74, 0x82, 0xf8, 0xea, 0x75, 0xe4 } };
 
+static const CDialogResizeHelper::Param chorus_uiresize[] = {
+	// Dialog resize handling matrix, defines how the controls scale with the dialog
+	//			 L T R B
+	{IDC_STATIC1, 0,0,0,0  },
+	{IDC_STATIC2,    0,0,0,0 },
+	{IDC_STATIC3,    0,0,0,0 },
+	{IDC_STATIC4,    0,0,0,0  },
+	{IDC_STATIC5,    0,0,0,0  },
+	{IDC_STATIC6,    0,0,0,0  },
+	{IDC_PHASERENABLED,    0,0,0,0  },
+	{IDC_EDITPHASELFOFREQUI, 0,0,0,0 },
+	{IDC_EDITPHASESTARTPHASEUI,  0,0,0,0 },
+{IDC_EDITPHASEFBUI,  0,0,0,0 },
+{IDC_EDITPHASERSTAGESUI,  0,0,0,0 },
+{IDC_EDITPHASEDRYWETUI, 0,0,0,0 },
+{IDC_EDITPHASEDEPTHUI,0,0,0,0 },
+{IDC_RESETCHR5,0,0,0,0 },
+{IDC_PHASERSLFOFREQ1, 0,0,1,0},
+{IDC_PHASERSLFOSTARTPHASE1, 0,0,1,0},
+{IDC_PHASERSFEEDBACK1, 0,0,1,0},
+{IDC_PHASERSDEPTH1, 0,0,1,0},
+{IDC_PHASERSTAGES1,0,0,1,0},
+{IDC_PHASERSDRYWET1,0,0,1,0},
+// current position of a control is determined by initial_position + factor * (current_dialog_size - initial_dialog_size)
+// where factor is the value from the table above
+// applied to all four values - left, top, right, bottom
+// 0,0,0,0 means that a control doesn't react to dialog resizing (aligned to top+left, no resize)
+// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
+// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
+};
+static const CRect resizeMinMax(200, 240, 1000, 1000);
+
 
 class uielem_phaser : public CDialogImpl<uielem_phaser>, public ui_element_instance {
 public:
-	uielem_phaser(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb) {
+	uielem_phaser(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb),m_resizer(chorus_uiresize, resizeMinMax) {
 		freq = 0.4; startphase = 0;
 		fb = 0; depth = 100;
 		stages = 2; drywet = 128;
@@ -199,6 +232,7 @@ public:
 		DryWetRangeTotal = 255
 	};
 	BEGIN_MSG_MAP(uielem_phaser)
+		CHAIN_MSG_MAP_MEMBER(m_resizer)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		COMMAND_HANDLER_EX(IDC_PHASERENABLED, BN_CLICKED, OnEnabledToggle)
 		MSG_WM_HSCROLL(OnScroll)
@@ -241,10 +275,10 @@ public:
 		}
 
 
-		ret.m_min_width = MulDiv(370, DPI.cx, 96);
+		ret.m_min_width = MulDiv(200, DPI.cx, 96);
 		ret.m_min_height = MulDiv(240, DPI.cy, 96);
-		ret.m_max_width = MulDiv(370, DPI.cx, 96);
-		ret.m_max_height = MulDiv(240, DPI.cy, 96);
+		ret.m_max_width = MulDiv(1000, DPI.cx, 96);
+		ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
 		// Deal with WS_EX_STATICEDGE and alike that we might have picked from host
 		ret.adjustForWindow(*this);
@@ -529,7 +563,7 @@ private:
 
 	CEditMod freq_edit, startphase_edit, fb_edit, depth_edit, stages_edit, drywet_edit;
 	CString freq_s, startphase_s, fb_s,depth_s,stages_s,drywet_s;
-
+	CDialogResizeHelper m_resizer;
 	CTrackBarCtrl slider_freq, slider_startphase, slider_fb, slider_depth, slider_stages, slider_drywet;
 	CButton m_buttonPhaserEnabled;
 	bool m_ownPhaserUpdate;

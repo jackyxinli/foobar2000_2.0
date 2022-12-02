@@ -4,6 +4,7 @@
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
+#include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
 #include "freeverb.h"
 #include "dsp_guids.h"
@@ -155,11 +156,38 @@ namespace {
 	static const GUID guid_choruselem =
 	{ 0x9afc1e0, 0xe9bb, 0x487b,{ 0x9b, 0xd8, 0x11, 0x3f, 0x29, 0x48, 0x8a, 0x90 } };
 
-
+	static const CDialogResizeHelper::Param chorus_uiresize[] = {
+		// Dialog resize handling matrix, defines how the controls scale with the dialog
+		//			 L T R B
+		{IDC_STATIC1, 0,0,0,0  },
+		{IDC_STATIC2,    0,0,0,0 },
+		{IDC_STATIC3,    0,0,0,0 },
+		{IDC_STATIC4,    0,0,0,0  },
+		{IDC_STATIC5,    0,0,0,0  },
+		{IDC_EDITFREEWET1, 0,0,0,0 },
+		{IDC_EDITFREEDRY1,  0,0,0,0 },
+	{IDC_EDITFREEDAMP1,  0,0,0,0 },
+	{IDC_EDITFREEW1,  0,0,0,0 },
+	{IDC_EDITFREERS1, 0,0,0,0 },
+	{IDC_FREEVERBENABLE,0,0,0,0 },
+	{IDC_RESETCHR5,0,0,0,0 },
+	{IDC_DRYTIME1, 0,0,1,0},
+	{IDC_WETTIME1, 0,0,1,0},
+	{IDC_ROOMWIDTH1, 0,0,1,0},
+	{IDC_DAMPING1, 0,0,1,0},
+	{IDC_ROOMSIZE1,0,0,1,0},
+	// current position of a control is determined by initial_position + factor * (current_dialog_size - initial_dialog_size)
+	// where factor is the value from the table above
+	// applied to all four values - left, top, right, bottom
+	// 0,0,0,0 means that a control doesn't react to dialog resizing (aligned to top+left, no resize)
+	// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
+	// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
+	};
+	static const CRect resizeMinMax(200, 170, 1000, 1000);
 
 	class uielem_freeverb : public CDialogImpl<uielem_freeverb>, public ui_element_instance {
 	public:
-		uielem_freeverb(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb) {
+		uielem_freeverb(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
 			drytime = 0.43; wettime = 0.57; dampness = 0.45;
 			roomwidth = 0.56; roomsize = 0.56; reverb_enabled = true;
 
@@ -185,6 +213,7 @@ namespace {
 		};
 
 		BEGIN_MSG_MAP(uielem_freeverb)
+			CHAIN_MSG_MAP_MEMBER(m_resizer)
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_FREEVERBENABLE, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
@@ -227,10 +256,10 @@ namespace {
 			}
 
 
-			ret.m_min_width = MulDiv(350, DPI.cx, 96);
-			ret.m_min_height = MulDiv(240, DPI.cy, 96);
-			ret.m_max_width = MulDiv(350, DPI.cx, 96);
-			ret.m_max_height = MulDiv(240, DPI.cy, 96);
+			ret.m_min_width = MulDiv(200, DPI.cx, 96);
+			ret.m_min_height = MulDiv(170, DPI.cy, 96);
+			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
+			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
 			// Deal with WS_EX_STATICEDGE and alike that we might have picked from host
 			ret.adjustForWindow(*this);
@@ -483,7 +512,7 @@ namespace {
 
 		bool reverb_enabled;
 		float  drytime, wettime, dampness, roomwidth, roomsize;
-
+		CDialogResizeHelper m_resizer;
 		CEditMod drytime_edit, wettime_edit, dampness_edit, roomwidth_edit, roomsize_edit;
 		CString  drytime_s, wettime_s, dampness_s, roomwidth_s, roomsize_s;
 		CTrackBarCtrl slider_drytime, slider_wettime, slider_dampness, slider_roomwidth, slider_roomsize;

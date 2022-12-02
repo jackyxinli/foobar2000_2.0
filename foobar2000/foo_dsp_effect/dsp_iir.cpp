@@ -3,6 +3,7 @@
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
+#include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
 #include "iirfilters.h"
 #include "dsp_guids.h"
@@ -403,10 +404,33 @@ namespace {
 	static const GUID guid_choruselem =
 	{ 0xf875c614, 0x439f, 0x4c53,{ 0xb2, 0xef, 0xa6, 0x6e, 0x17, 0x4b, 0xf0, 0x23 } };
 
+	static const CDialogResizeHelper::Param chorus_uiresize[] = {
+		// Dialog resize handling matrix, defines how the controls scale with the dialog
+		//			 L T R B
+		{IDC_STATIC1, 0,0,0,0  },
+		{IDC_STATIC2,    0,0,0,0 },
+		{IDC_STATIC3,    0,0,0,0 },
+		{IDC_STATIC4,    0,0,0,0  },
+		{IDC_IIRENABLED,    0,0,0,0  },
+		{IDC_IIRFREQEDIT2, 0,0,0,0 },
+		{IDC_IIRGAINEDIT,  0,0,0,0 },
+	{IDC_IIRQ,  0,0,0,0 },
+	{IDC_IIRFREQ1, 0,0,1,0},
+	{IDC_IIRGAIN1, 0,0,1,0},
+	{IDC_IIRTYPE1,0,0,1,0},
+	// current position of a control is determined by initial_position + factor * (current_dialog_size - initial_dialog_size)
+	// where factor is the value from the table above
+	// applied to all four values - left, top, right, bottom
+	// 0,0,0,0 means that a control doesn't react to dialog resizing (aligned to top+left, no resize)
+	// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
+	// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
+	};
+	static const CRect resizeMinMax(200, 100, 1000, 1000);
+
 
 	class uielem_iir : public CDialogImpl<uielem_iir>, public ui_element_instance {
 	public:
-		uielem_iir(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb) {
+		uielem_iir(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb),m_resizer(chorus_uiresize, resizeMinMax) {
 			p_freq = 400; p_gain = 10; p_type = 0;
 			p_qual = 0.707;
 			IIR_enabled = true;
@@ -423,6 +447,7 @@ namespace {
 			GainRangeTotal = GainMax - GainMin
 		};
 		BEGIN_MSG_MAP(uielem_iir)
+			CHAIN_MSG_MAP_MEMBER(m_resizer)
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_IIRENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
@@ -466,10 +491,10 @@ namespace {
 			}
 
 
-			ret.m_min_width = MulDiv(420, DPI.cx, 96);
-			ret.m_min_height = MulDiv(140, DPI.cy, 96);
-			ret.m_max_width = MulDiv(420, DPI.cx, 96);
-			ret.m_max_height = MulDiv(140, DPI.cy, 96);
+			ret.m_min_width = MulDiv(200, DPI.cx, 96);
+			ret.m_min_height = MulDiv(100, DPI.cy, 96);
+			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
+			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
 			// Deal with WS_EX_STATICEDGE and alike that we might have picked from host
 			ret.adjustForWindow(*this);
@@ -742,6 +767,7 @@ namespace {
 		CTrackBarCtrl slider_freq, slider_gain;
 		CButton m_buttonIIREnabled;
 		bool m_ownIIRUpdate;
+		CDialogResizeHelper m_resizer;
 
 		static uint32_t parseConfig(ui_element_config::ptr cfg) {
 			return 1;
