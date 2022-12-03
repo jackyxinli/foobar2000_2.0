@@ -162,7 +162,7 @@ namespace {
 	// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
 	// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
 	};
-	static const CRect resizeMinMax(150, 130, 1000, 1000);
+	static const CRect resizeMinMax(150, 150, 1000, 1000);
 
 	// {1DC17CA0-0023-4266-AD59-691D566AC291}
 	static const GUID guid_choruselem
@@ -235,7 +235,7 @@ namespace {
 
 
 			ret.m_min_width = MulDiv(150, DPI.cx, 96);
-			ret.m_min_height = MulDiv(130, DPI.cy, 96);
+			ret.m_min_height = MulDiv(150, DPI.cy, 96);
 			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
 			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
 
@@ -348,7 +348,7 @@ namespace {
 			dsp_preset_impl preset;
 			CString text, text2, text3, text4;
 			delay_edit.GetWindowText(text);
-			float delay2 = pfc::clip_t<t_int32>(_ttoi(text), 10, 5000);
+			int delay2 = pfc::clip_t<t_int32>(_ttoi(text), 10, 5000);
 
 			if (delay_s != text)
 			{
@@ -362,7 +362,6 @@ namespace {
 			{
 				preset_changed = true;
 				amp = (depth2 / 100 * 256);
-				amp = depth2;
 			}
 
 
