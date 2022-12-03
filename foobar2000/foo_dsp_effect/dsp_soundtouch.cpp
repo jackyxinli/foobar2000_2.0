@@ -2034,6 +2034,13 @@ class myElem2 : public  ui_element_impl_withpopup< uielem_pitch > {
 		out = "Opens a window for pitch control.";
 		return true;
 	}
+
+	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
+	{
+		ui_size sz = { 200,100 };
+		title = "Pitch DSP";
+		return true;
+	}
 };
 
 class myElem3 : public  ui_element_impl_withpopup< uielem_tempo > {
@@ -2046,6 +2053,13 @@ class myElem3 : public  ui_element_impl_withpopup< uielem_tempo > {
 		out = "Opens a window for tempo control.";
 		return true;
 	}
+
+	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
+	{
+		ui_size sz = { 200,100 };
+		title = "Tempo DSP";
+		return true;
+	}
 };
 
 class myElem4 : public  ui_element_impl_withpopup< uielem_rate > {
@@ -2056,6 +2070,13 @@ class myElem4 : public  ui_element_impl_withpopup< uielem_rate > {
 	}
 	bool get_menu_command_description(pfc::string_base& out) {
 		out = "Opens a window for playback rate control.";
+		return true;
+	}
+
+	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
+	{
+		ui_size sz = { 200,100 };
+		title = "Playback Rate DSP";
 		return true;
 	}
 };

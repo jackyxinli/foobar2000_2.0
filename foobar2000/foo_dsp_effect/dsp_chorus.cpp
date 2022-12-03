@@ -4,7 +4,6 @@
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
-#include "../helpers/atl-misc.h"// ui_element_impl
 #include "../helpers/BumpableElem.h"// ui_element_impl
 #include "resource.h"
 #include "dsp_guids.h"
@@ -532,7 +531,7 @@ namespace {
 		// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
 	};
 	static const CRect resizeMinMax(200, 150, 1000, 1000);
-	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance {
+	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance{
 	public:
 		
 		uielem_chorus(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
@@ -562,8 +561,6 @@ namespace {
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
-
-
 		void initialize_window(HWND parent) { WIN32_OP(Create(parent) != NULL); }
 		HWND get_wnd() { return m_hWnd; }
 		void set_configuration(ui_element_config::ptr config) {
@@ -585,6 +582,8 @@ namespace {
 		static GUID g_get_subclass() {
 			return ui_element_subclass_dsp;
 		}
+
+		
 
 		ui_element_min_max_info get_min_max_info() {
 			ui_element_min_max_info ret;
@@ -926,6 +925,13 @@ namespace {
 			out = "Opens a window for chorus effects.";
 			return true;
 		}
+		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
+		{
+			ui_size sz = { 200,150 };
+			title = "Chorus DSP";
+			return true;
+		}
+
 
 	};
 	static service_factory_single_t<myElem_t2> g_myElemFactory;

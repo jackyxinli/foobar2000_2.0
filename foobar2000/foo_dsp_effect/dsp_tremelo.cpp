@@ -688,6 +688,13 @@ namespace {
 			return true;
 		}
 
+		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
+		{
+			ui_size sz = { 170,100 };
+			title = "Tremelo DSP";
+			return true;
+		}
+
 	};
 	static service_factory_single_t<myElem_t> g_myElemFactory;
 
