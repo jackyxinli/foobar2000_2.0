@@ -62,7 +62,7 @@ class dsp_pitch : public dsp_impl_base
 	float pitch_amount;
 	bool st_enabled;
 	metadb_handle_ptr current_track;
-	pfc::array_t<audio_sample>buf;
+	pfc::array_t<float>buf;
 	bool gettrackdata;
 private:
 	void flushchunks()
@@ -79,7 +79,7 @@ private:
 					if (out_samples_gen != 0)
 					{
 						audio_chunk* chunk = insert_chunk(out_samples_gen * m_ch);
-						chunk->set_data(buf.get_ptr(), out_samples_gen, m_ch, m_rate, m_ch_mask);
+						chunk->set_data_32(buf.get_ptr(), out_samples_gen, m_ch, m_rate);
 					}
 				}
 			}
@@ -203,12 +203,31 @@ public:
 		{
 		
 			t_size sample_count = chunk->get_sample_count();
-			audio_sample * current = chunk->get_data();
+			audio_sample* current = chunk->get_data();
+
+#ifdef _WIN64
+
+		
+				if (sample_count)
+				{
+					buf.grow_size(sample_count * m_ch);
+					audio_math::convert(current, (float*)buf.get_ptr(), sample_count * m_ch);
+					p_soundtouch->putSamples(buf.get_ptr(), sample_count);
+					flushchunks();
+				}
+#else
 			if (sample_count)
 			{
 				p_soundtouch->putSamples(current, sample_count);
 				flushchunks();
 			}
+#endif
+			
+			
+			
+
+
+			
 		}
 		return false;
 	}
@@ -265,7 +284,7 @@ class dsp_tempo : public dsp_impl_base
 	int pitch_shifter;
 	float tempo_amount;
 	bool st_enabled;
-	pfc::array_t<audio_sample>buf;
+	pfc::array_t<float>buf;
 	metadb_handle_ptr current_track;
 	bool gettrackdata;
 private:
@@ -283,7 +302,7 @@ private:
 						if (out_samples_gen != 0)
 						{
 							audio_chunk* chunk = insert_chunk(out_samples_gen * m_ch);
-							chunk->set_data(buf.get_ptr(), out_samples_gen, m_ch, m_rate, m_ch_mask);
+							chunk->set_data_32(buf.get_ptr(), out_samples_gen, m_ch, m_rate);
 						}
 					}
 				}
@@ -408,9 +427,26 @@ public:
 			t_size sample_count = chunk->get_sample_count();
 			if (sample_count)
 			{
+
+
 				audio_sample* current = chunk->get_data();
-				p_soundtouch->putSamples(current, sample_count);
-				flushchunks();
+#ifdef _WIN64
+
+
+				if (sample_count)
+				{
+					buf.grow_size(sample_count * m_ch);
+					audio_math::convert(current, (float*)buf.get_ptr(), sample_count * m_ch);
+					p_soundtouch->putSamples(buf.get_ptr(), sample_count);
+					flushchunks();
+				}
+#else
+				if (sample_count)
+				{
+					p_soundtouch->putSamples(current, sample_count);
+					flushchunks();
+				}
+#endif
 			}
 			
 		}
@@ -470,7 +506,7 @@ class dsp_rate : public dsp_impl_base
 	SoundTouch * p_soundtouch;
 	int m_rate, m_ch, m_ch_mask;
 	float pitch_amount;
-	pfc::array_t<audio_sample>buffer;
+	pfc::array_t<float>buffer;
 	bool st_enabled;
 	metadb_handle_ptr current_track;
 	bool gettrackdata;
@@ -489,7 +525,7 @@ private:
 					if (out_samples_gen != 0)
 					{
 						audio_chunk* chunk = insert_chunk(out_samples_gen * m_ch);
-						chunk->set_data(buffer.get_ptr(), out_samples_gen, m_ch, m_rate, m_ch_mask);
+						chunk->set_data_32(buffer.get_ptr(), out_samples_gen, m_ch, m_rate);
 					}
 				}
 			}
@@ -607,8 +643,15 @@ public:
 			if (sample_count)
 			{
 				audio_sample* current = chunk->get_data();
+#ifdef _WIN64
+				buffer.grow_size(sample_count * m_ch);
+				audio_math::convert(current, (float*)buffer.get_ptr(), sample_count * m_ch);
+				p_soundtouch->putSamples(buffer.get_ptr(), sample_count);
+				flushchunks();
+#else
 				p_soundtouch->putSamples(current, sample_count);
 				flushchunks();
+#endif
 			}
 		}
 		return false;

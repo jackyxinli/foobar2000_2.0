@@ -6,7 +6,7 @@ comb::comb() {
 	bufidx = 0;
 }
 
-void comb::setbuffer(float *buf, int size) {
+void comb::setbuffer(audio_sample *buf, int size) {
 	buffer = buf;
 	bufsize = size;
 }
@@ -39,7 +39,7 @@ allpass::allpass() {
 	bufidx = 0;
 }
 
-void allpass::setbuffer(float *buf, int size) {
+void allpass::setbuffer(audio_sample*buf, int size) {
 	buffer = buf;
 	bufsize = size;
 }
@@ -93,7 +93,7 @@ void revmodel::init(int srate)
 	static const int comb_lengths[8] = { 1116,1188,1277,1356,1422,1491,1557,1617 };
 	static const int allpass_lengths[4] = { 225,341,441,556 };
 
-	double r = (double)(srate * (1 / 44100.0));
+	double r = srate * (1 / 44100.);
 	if (bufcomb) {
 		for (int c = 0; c < num_comb; ++c)
 		{
@@ -104,10 +104,10 @@ void revmodel::init(int srate)
 		bufcomb = NULL;
 	}
 
-   bufcomb= new float *[num_comb];
+   bufcomb= new audio_sample *[num_comb];
    for (int c = 0; c < num_comb; ++c)
    {
-	   bufcomb[c] = new float[r*comb_lengths[c]];
+	   bufcomb[c] = new audio_sample[r*comb_lengths[c]];
 	   combL[c].setbuffer(bufcomb[c], r*comb_lengths[c]);
    }
 
@@ -120,10 +120,10 @@ void revmodel::init(int srate)
 	   delete[] bufallpass;
 	   bufallpass = NULL;
    }
-   bufallpass = new float *[num_allpass];
+   bufallpass = new audio_sample *[num_allpass];
    for (int a = 0;a< num_allpass; ++a)
    {
-	   bufallpass[a] = new float[r*allpass_lengths[a]];
+	   bufallpass[a] = new audio_sample[r*allpass_lengths[a]];
 	   allpassL[a].setbuffer(bufallpass[a], r*allpass_lengths[a]);
 	   allpassL[a].setfeedback(0.5f);
    }
@@ -151,12 +151,10 @@ void revmodel::mute() {
 	}
 }
 
-float revmodel::processsample(float in)
+audio_sample revmodel::processsample(audio_sample in)
 {
-	float samp = in;
-	float mono_out = 0.0f;
-	float mono_in = samp;
-	float input = (mono_in) * gain;
+	audio_sample mono_out = 0.0f;
+	audio_sample input = (in) * gain;
 	for(int i=0; i<numcombs; i++)
 	{
 		mono_out += combL[i].process(input);
@@ -165,7 +163,7 @@ float revmodel::processsample(float in)
 	{
 		mono_out = allpassL[i].process(mono_out);
 	}
-	samp = mono_in * dry + mono_out * wet1;
+	audio_sample samp = in * dry + mono_out * wet1;
 	return samp;
 }
 
