@@ -1209,7 +1209,7 @@ static const CDialogResizeHelper::Param chorus_uiresize[] = {
 // 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
 // 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
 };
-static const CRect resizeMinMax(150, 100, 1000, 1000);
+static const CRect resizeMinMax(200, 100, 1000, 1000);
 
 
 
@@ -1273,7 +1273,7 @@ public:
 		}
 
 
-		ret.m_min_width = MulDiv(150, DPI.cx, 96);
+		ret.m_min_width = MulDiv(200, DPI.cx, 96);
 		ret.m_min_height = MulDiv(100, DPI.cy, 96);
 		ret.m_max_width = MulDiv(1000, DPI.cx, 96);
 		ret.m_max_height = MulDiv(1000, DPI.cy, 96);
@@ -1531,7 +1531,7 @@ public:
 		}
 
 
-		ret.m_min_width = MulDiv(150, DPI.cx, 96);
+		ret.m_min_width = MulDiv(200, DPI.cx, 96);
 		ret.m_min_height = MulDiv(100, DPI.cy, 96);
 		ret.m_max_width = MulDiv(1000, DPI.cx, 96);
 		ret.m_max_height = MulDiv(1000, DPI.cy, 96);
@@ -1786,7 +1786,7 @@ public:
 		}
 
 
-		ret.m_min_width = MulDiv(150, DPI.cx, 96);
+		ret.m_min_width = MulDiv(200, DPI.cx, 96);
 		ret.m_min_height = MulDiv(100, DPI.cy, 96);
 		ret.m_max_width = MulDiv(1000, DPI.cx, 96);
 		ret.m_max_height = MulDiv(1000, DPI.cy, 96);
@@ -1988,7 +1988,7 @@ class myElem2 : public  ui_element_impl_withpopup< uielem_pitch > {
 		return true;
 	}
 	bool get_menu_command_description(pfc::string_base & out) {
-		out = "Opens a window for pitchcontrol.";
+		out = "Opens a window for pitch control.";
 		return true;
 	}
 };

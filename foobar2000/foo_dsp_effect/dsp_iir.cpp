@@ -425,7 +425,7 @@ namespace {
 	// 1,1,1,1 means that the control is aligned to bottom+right but doesn't resize
 	// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
 	};
-	static const CRect resizeMinMax(200, 100, 1000, 1000);
+	static const CRect resizeMinMax(220, 100, 1000, 1000);
 
 
 	class uielem_iir : public CDialogImpl<uielem_iir>, public ui_element_instance {
@@ -491,7 +491,7 @@ namespace {
 			}
 
 
-			ret.m_min_width = MulDiv(200, DPI.cx, 96);
+			ret.m_min_width = MulDiv(220, DPI.cx, 96);
 			ret.m_min_height = MulDiv(100, DPI.cy, 96);
 			ret.m_max_width = MulDiv(1000, DPI.cx, 96);
 			ret.m_max_height = MulDiv(1000, DPI.cy, 96);
