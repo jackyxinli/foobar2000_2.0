@@ -254,7 +254,7 @@ namespace {
 			CString text, text2, text3, text4;
 			freq_edit.GetWindowText(text);
 			float freqhz = _ttof(text);
-			freqhz = pfc::clip_t<t_float32>(freqhz, FreqMin, FreqMax);
+			freqhz = pfc::clip_t<t_float32>(freqhz, 2.0, 20.);
 			if (freq_s != text)
 			{
 				preset_changed = true;
@@ -326,7 +326,7 @@ namespace {
 		{
 			CString sWindowText;
 			pfc::string_formatter msg;
-			msg << pfc::format_float(freq, 0, 1);
+			msg << pfc::format_float(freq, 0, 2);
 			sWindowText = msg.c_str();
 			freq_s = sWindowText;
 			freq_edit.SetWindowText(sWindowText);
@@ -474,8 +474,9 @@ namespace {
 			bool preset_changed = false;
 			dsp_preset_impl preset;
 			CString text, text2, text3, text4;
+			freq_edit.GetWindowText(text);
 			float freqhz = _ttof(text);
-			freqhz = pfc::clip_t<t_float32>(freqhz, FreqMin, FreqMax);
+			freqhz = pfc::clip_t<t_float32>(freqhz, 2.0, 20.);
 			if (freq_s != text)
 			{
 				preset_changed = true;
@@ -632,7 +633,7 @@ namespace {
 		{
 			CString sWindowText;
 			pfc::string_formatter msg;
-			msg << pfc::format_float(freq,0,1);
+			msg << pfc::format_float(freq,0,2);
 			sWindowText = msg.c_str();
 			freq_s = sWindowText;
 			freq_edit.SetWindowText(sWindowText);

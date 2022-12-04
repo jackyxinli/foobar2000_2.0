@@ -347,11 +347,13 @@ public:
 	virtual void on_endoftrack(abort_callback & p_abort) {
 	
 		flushchunks();
+		gettrackdata = false;
 	}
 
 	virtual void on_endofplayback(abort_callback & p_abort) {
 		//same as flush, only at end of playback
 		flushchunks();
+		gettrackdata = false;
 	}
 
 	// The framework feeds input to our DSP using this method.

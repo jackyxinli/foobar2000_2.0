@@ -569,9 +569,10 @@ namespace {
 			}
 
 			if (changed)
+				SetConfig();
 				if (IsIIREnabled())
 				{
-					SetConfig();
+					
 					dsp_preset_impl preset;
 					dsp_iir::make_preset(p_freq, gain2, p_type, p_qual, true, preset);
 					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);

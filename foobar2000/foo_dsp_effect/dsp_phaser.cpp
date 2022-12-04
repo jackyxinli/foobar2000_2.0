@@ -391,6 +391,13 @@ private:
 		bool preset_changed = false;
 		CString text, text2, text3, text4, text5, text6;
 
+		freq_edit.GetWindowText(text);
+		startphase_edit.GetWindowText(text2);
+		fb_edit.GetWindowText(text3);
+		depth_edit.GetWindowText(text4);
+		stages_edit.GetWindowText(text5);
+		drywet_edit.GetWindowText(text6);
+
 		float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
 
 		if (freq_s != text)
@@ -399,9 +406,9 @@ private:
 			preset_changed = true;
 		}
 
-		float startphase2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, StartPhaseMax);
+		int startphase2 = pfc::clip_t<t_int32>(_ttoi(text2), 0, StartPhaseMax);
 
-		if (startphase_s != text)
+		if (startphase_s != text2)
 		{
 			startphase = startphase2;
 			preset_changed = true;
@@ -409,7 +416,7 @@ private:
 
 		float fb2 = pfc::clip_t<t_int32>(_ttoi(text3), -100, 100);
 
-		if (fb_s != text)
+		if (fb_s != text3)
 		{
 			fb = fb2;
 			preset_changed = true;
@@ -417,15 +424,15 @@ private:
 
 		float depth2 = pfc::clip_t<t_float32>(_ttoi(text4), 0, 100);
 
-		if (depth_s != text)
+		if (depth_s != text4)
 		{
 			depth = (depth2 / 100 * 256);
 			preset_changed = true;
 		}
 
-		float stages2 = pfc::clip_t<t_int32>(_ttoi(text5), StagesMin, StagesMax);
+		int stages2 = pfc::clip_t<t_int32>(_ttoi(text5), StagesMin, StagesMax);
 
-		if (stages_s != text)
+		if (stages_s != text5)
 		{
 			stages = stages2;
 			preset_changed = true;
@@ -433,7 +440,7 @@ private:
 
 		float drywet2 = pfc::clip_t<t_int32>(_ttoi(text6), 0, 100);
 
-		if (drywet_s != text)
+		if (drywet_s != text6)
 		{
 			drywet = (drywet2 / 100 * 256);
 			preset_changed = true;
@@ -691,6 +698,13 @@ private:
 	{
 		bool preset_changed = false;
 		CString text, text2, text3, text4, text5, text6;
+
+		freq_edit.GetWindowText(text);
+		startphase_edit.GetWindowText(text2);
+		fb_edit.GetWindowText(text3);
+		depth_edit.GetWindowText(text4);
+		stages_edit.GetWindowText(text5);
+		drywet_edit.GetWindowText(text6);
 
 		float freq2 = pfc::clip_t<t_float32>(_ttoi(text), FreqMin, FreqMax) / 10.0;
 
