@@ -45,7 +45,7 @@ namespace {
 	const float VIBRATO_FREQUENCY_MAX_HZ = 14;
 	const float VIBRATO_DEPTH_DEFAULT_PERCENT = 50;
 
-	__forceinline audio_sample getSampleHermite4p3o(audio_sample x, audio_sample*y)
+	__forceinline audio_sample getSampleHermite4p3o(audio_sample x, audio_sample *y)
 	{
 		static audio_sample c0, c1, c2, c3;
 		// 4-point, 3rd-order Hermite (x-form)
@@ -127,7 +127,7 @@ namespace {
 	public:
 		dsp_vibrato(dsp_preset const & in) :m_rate(0), m_ch(0), m_ch_mask(0) {
 			// Mark buffer as empty.
-			freq = 5.0;
+			freq = 2.0;
 			depth = 0.5;
 			enabled = true;
 			parse_preset(freq, depth, enabled, in);
@@ -299,6 +299,17 @@ namespace {
 			return 0;
 		}
 
+		void OnReset5(UINT, int id, CWindow)
+		{
+			freq = 2.; depth = 0.5;
+			dsp_preset_impl preset;
+			dsp_vibrato::make_preset(freq, depth, true, preset);
+			m_callback.on_preset_changed(preset);
+			slider_freq.SetPos((double)(100 * freq));
+			slider_depth.SetPos((double)(100 * depth));
+			RefreshLabel(freq, depth);
+		}
+
 		void GetEditText()
 		{
 			bool preset_changed = false;
@@ -437,7 +448,7 @@ namespace {
 	class uielem_vibrato : public CDialogImpl<uielem_vibrato>, public ui_element_instance {
 	public:
 		uielem_vibrato(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
-			freq = 5.0;
+			freq = 2.0;
 			depth = 0.5;
 			echo_enabled = true;
 
@@ -457,6 +468,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDC_TREMELOENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 
 
@@ -508,6 +520,13 @@ namespace {
 		}
 
 	private:
+		void OnReset5(UINT, int id, CWindow)
+		{
+			freq = 2.; depth = 0.5;
+			OnConfigChanged();
+			SetConfig();
+		}
+
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)
