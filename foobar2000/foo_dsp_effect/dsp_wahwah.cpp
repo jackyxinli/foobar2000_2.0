@@ -230,6 +230,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDC_WAHENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 
 
@@ -280,6 +281,21 @@ namespace {
 		}
 
 	private:
+
+
+		void OnReset5(UINT, int id, CWindow)
+		{
+			freq = 1.5; depth = 0.70; startphase = 0.0; freqofs = 0.3; res = 2.5;
+			slider_freq.SetPos((double)(10 * freq));
+			slider_startphase.SetPos((double)(100 * startphase));
+			slider_freqofs.SetPos((double)(100 * freqofs));
+			slider_depth.SetPos((double)(100 * depth));
+			slider_res.SetPos((double)(100 * res));
+			RefreshLabel(freq, depth, startphase, freqofs, res);
+			OnConfigChanged();
+		}
+
+
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)
@@ -604,9 +620,25 @@ namespace {
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 			MSG_WM_HSCROLL(OnHScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR6, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 
 	private:
+
+		void OnReset5(UINT, int id, CWindow)
+		{
+			freq = 1.5; depth = 0.70; startphase = 0.0; freqofs = 0.3; res = 2.5;
+			slider_freq.SetPos((double)(10 * freq));
+			slider_startphase.SetPos((double)(100 * startphase));
+			slider_freqofs.SetPos((double)(100 * freqofs));
+			slider_depth.SetPos((double)(100 * depth));
+			slider_res.SetPos((double)(100 * res));
+			RefreshLabel(freq, depth, startphase, freqofs, res);
+			dsp_preset_impl preset;
+			dsp_wahwah::make_preset(freq, depth, startphase, freqofs, res, true, preset);
+			m_callback.on_preset_changed(preset);
+		}
+
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)

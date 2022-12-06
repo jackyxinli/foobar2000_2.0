@@ -177,6 +177,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDC_IIRTYPE, CBN_SELCHANGE, OnChange)
 			MSG_WM_HSCROLL(OnScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR6, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 
 	private:
@@ -189,6 +190,23 @@ namespace {
 			}
 			return 0;
 		}
+
+		void OnReset5(UINT, int id, CWindow)
+		{
+			p_freq = 400, p_gain = 10, p_type = 0, p_qual = 0.707;
+
+
+			slider_freq.SetPos(p_freq);
+			slider_gain.SetPos(p_gain * 100);
+			CWindow w = GetDlgItem(IDC_IIRTYPE1);
+			::SendMessage(w, CB_SETCURSEL, p_type, 0);
+			RefreshLabel(p_freq, p_gain, p_type);
+			dsp_preset_impl preset;
+			dsp_iir::make_preset(p_freq, p_gain, p_type, p_qual , true, preset);
+			m_callback.on_preset_changed(preset);
+			RefreshLabel(p_freq, p_gain, p_type);
+		}
+
 
 		void GetEditText()
 		{
@@ -426,6 +444,7 @@ namespace {
 		{IDC_IIRENABLED,    0,0,0,0  },
 		{IDC_IIRFREQEDIT2, 0,0,0,0 },
 		{IDC_IIRGAINEDIT,  0,0,0,0 },
+		{IDC_RESETCHR5, 0,0,0,0},
 	{IDC_IIRQ,  0,0,0,0 },
 	{IDC_IIRFREQ1, 0,0,1,0},
 	{IDC_IIRGAIN1, 0,0,1,0},
@@ -464,6 +483,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDC_IIRENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
 			COMMAND_HANDLER_EX(IDC_IIRTYPE1, CBN_SELCHANGE, OnChange1)
+			COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
@@ -525,6 +545,24 @@ namespace {
 			return 0;
 		}
 
+		void OnReset5(UINT, int id, CWindow)
+		{
+			p_freq = 400, p_gain = 10, p_type = 0, p_qual = 0.707;
+			SetConfig();
+			if (IsIIREnabled())
+			{
+				BOOL type1 = (p_type != 10);
+				slider_freq.EnableWindow(type1);
+				slider_gain.EnableWindow(type1);
+				freq_edit.EnableWindow(type1);
+				gain_edit.EnableWindow(type1);
+				dsp_preset_impl preset;
+				dsp_iir::make_preset(p_freq, p_gain, p_type, p_qual, true, preset);
+				static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+				RefreshLabel(p_freq, p_gain, p_type);
+			}
+		}
+
 		void OnChange1(UINT scrollid, int id, CWindow window)
 		{
 			CWindow w;
@@ -581,10 +619,15 @@ namespace {
 				SetConfig();
 				if (IsIIREnabled())
 				{
-					
+					BOOL type1 = (p_type != 10);
+					slider_freq.EnableWindow(type1);
+					slider_gain.EnableWindow(type1);
+					freq_edit.EnableWindow(type1);
+					gain_edit.EnableWindow(type1);
 					dsp_preset_impl preset;
-					dsp_iir::make_preset(p_freq, gain2, p_type, p_qual, true, preset);
+					dsp_iir::make_preset(p_freq, p_gain, p_type, p_qual, true, preset);
 					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+					RefreshLabel(p_freq, p_gain, p_type);
 				}
 			
 		}

@@ -237,6 +237,7 @@ public:
 		COMMAND_HANDLER_EX(IDC_PHASERENABLED, BN_CLICKED, OnEnabledToggle)
 		MSG_WM_HSCROLL(OnScroll)
 		MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+		COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 	END_MSG_MAP()
 
 
@@ -295,6 +296,22 @@ private:
 			GetEditText();
 		}
 		return 0;
+	}
+
+	void OnReset5(UINT, int id, CWindow)
+	{
+		freq = 0.4; startphase = 0;
+		fb = 0; depth = 100;
+		stages = 2; drywet = 128;
+		phaser_enabled = true;
+		slider_freq.SetPos((double)(10 * freq));
+		slider_startphase.SetPos(startphase);
+		slider_fb.SetPos(fb);
+		slider_depth.SetPos(depth);
+		slider_stages.SetPos(stages);
+		slider_drywet.SetPos(drywet);
+		RefreshLabel(freq, startphase, fb, depth, stages, drywet);
+		OnConfigChanged();
 	}
 
 
@@ -655,9 +672,28 @@ public:
 		COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 		MSG_WM_HSCROLL(OnHScroll)
 		MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+		COMMAND_HANDLER_EX(IDC_RESETCHR6, BN_CLICKED, OnReset5)
 	END_MSG_MAP()
 
 private:
+	void OnReset5(UINT, int id, CWindow)
+	{
+		freq = 0.4; startphase = 0;
+		fb = 0; depth = 100;
+		stages = 2; drywet = 128;
+		slider_freq.SetPos((double)(10 * freq));
+		slider_startphase.SetPos(startphase);
+		slider_fb.SetPos(fb);
+		slider_depth.SetPos(depth);
+		slider_stages.SetPos(stages);
+		slider_drywet.SetPos(drywet);
+		RefreshLabel(freq, startphase, fb, depth, stages, drywet);
+		dsp_preset_impl preset;
+		dsp_phaser::make_preset(freq, startphase, fb, depth, stages, drywet, true, preset);
+		m_callback.on_preset_changed(preset);
+	}
+
+
 	LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		if (wParam == 0x1988)

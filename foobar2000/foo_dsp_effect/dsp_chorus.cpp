@@ -47,7 +47,7 @@ namespace {
 	class Chorus
 	{
 	private:
-		float old[CHORUS_MAX_DELAY];
+		audio_sample old[CHORUS_MAX_DELAY];
 		unsigned old_ptr;
 		float delay_;
 		float depth_;
@@ -72,7 +72,7 @@ namespace {
 
 		void init(float delay, float depth, float lfo_freq, float drywet, int rate)
 		{
-			memset(old, 0, CHORUS_MAX_DELAY * sizeof(float));
+			memset(old, 0, CHORUS_MAX_DELAY * sizeof(audio_sample));
 			old_ptr = 0;
 			delay_ = delay / 1000.0f;
 			depth_ = depth / 1000.0f;
@@ -97,25 +97,25 @@ namespace {
 			lfo_ptr = 0;
 
 		}
-		float Process(float in)
+		audio_sample Process(audio_sample in)
 		{
-			float in_smp = in;
+			audio_sample in_smp = in;
 			old[old_ptr] = in_smp;
-			float delay2 = this->delay_ + depth_ * sin((2.0 * M_PI * lfo_ptr++) / lfo_period);
+			audio_sample delay2 = this->delay_ + depth_ * sin((2.0 * M_PI * lfo_ptr++) / lfo_period);
 			delay2 *= rate;
 			if (lfo_ptr >= lfo_period)
 				lfo_ptr = 0;
 			unsigned delay_int = (unsigned)delay2;
 			if (delay_int >= CHORUS_MAX_DELAY - 1)
 				delay_int = CHORUS_MAX_DELAY - 2;
-			float delay_frac = delay2 - delay_int;
+			audio_sample delay_frac = delay2 - delay_int;
 
-			float l_a = old[(old_ptr - delay_int - 0) & CHORUS_DELAY_MASK];
-			float l_b = old[(old_ptr - delay_int - 1) & CHORUS_DELAY_MASK];
+			audio_sample l_a = old[(old_ptr - delay_int - 0) & CHORUS_DELAY_MASK];
+			audio_sample l_b = old[(old_ptr - delay_int - 1) & CHORUS_DELAY_MASK];
 			/* Lerp introduces aliasing of the chorus component,
 			* but doing full polyphase here is probably overkill. */
-			float chorus_l = l_a * (1.0f - delay_frac) + l_b * delay_frac;
-			float smp = mix_dry * in_smp + mix_wet * chorus_l;
+			audio_sample chorus_l = l_a * (1.0f - delay_frac) + l_b * delay_frac;
+			audio_sample smp = mix_dry * in_smp + mix_wet * chorus_l;
 			old_ptr = (old_ptr + 1) & CHORUS_DELAY_MASK;
 			return smp;
 		}
@@ -280,10 +280,6 @@ namespace {
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDOK, BN_CLICKED, OnButton)
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
-			COMMAND_HANDLER_EX(IDC_RESETCHR1,BN_CLICKED,OnReset1)
-			COMMAND_HANDLER_EX(IDC_RESETCHR2, BN_CLICKED, OnReset2)
-			COMMAND_HANDLER_EX(IDC_RESETCHR3, BN_CLICKED, OnReset3)
-			COMMAND_HANDLER_EX(IDC_RESETCHR4, BN_CLICKED, OnReset4)
 			COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 			MSG_WM_HSCROLL(OnHScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
@@ -303,31 +299,6 @@ namespace {
 			dsp_chorus::make_preset(delay_ms, depth_ms, lfo_freq, drywet, true, preset);
 			m_callback.on_preset_changed(preset);
 			RefreshLabel(delay_ms, depth_ms, lfo_freq, drywet);
-		}
-
-		void OnReset1(UINT, int id, CWindow)
-		{
-			delay_ms = defaults_chorus.delay_ms;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
-
-		}
-
-		void OnReset2(UINT, int id, CWindow)
-		{
-			depth_ms = defaults_chorus.depth_ms;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
-		}
-
-		void OnReset3(UINT, int id, CWindow)
-		{
-			lfo_freq = defaults_chorus.lfo_freq;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
-		}
-
-		void OnReset4(UINT, int id, CWindow)
-		{
-			drywet = defaults_chorus.drywet;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
 		}
 
 		void OnReset5(UINT, int id, CWindow)
@@ -611,11 +582,16 @@ namespace {
 	private:
 		void Reset(float drywet, float lfo_freq, float depth_ms, float delay_ms)
 		{
+			delay_ms = 25.0;
+			depth_ms = 1.0;
+			lfo_freq = 0.8;
+			drywet = 1.;
 			slider_drywet.SetPos((double)(100 * drywet));
 			slider_lfofreq.SetPos((double)(100 * lfo_freq));
 			slider_depthms.SetPos((double)(100 * depth_ms));
 			slider_delayms.SetPos((double)(100 * delay_ms));
-			ApplySettings();
+			if (IsEchoEnabled())
+				OnConfigChanged();
 			RefreshLabel(delay_ms, depth_ms, lfo_freq, drywet * 100);
 		}
 
@@ -626,31 +602,6 @@ namespace {
 				GetEditText();
 			}
 			return 0;
-		}
-
-		void OnReset1(UINT, int id, CWindow)
-		{
-			delay_ms = defaults_chorus.delay_ms;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
-
-		}
-
-		void OnReset2(UINT, int id, CWindow)
-		{
-			depth_ms = defaults_chorus.depth_ms;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
-		}
-
-		void OnReset3(UINT, int id, CWindow)
-		{
-			lfo_freq = defaults_chorus.lfo_freq;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
-		}
-
-		void OnReset4(UINT, int id, CWindow)
-		{
-			drywet = defaults_chorus.drywet;
-			Reset(drywet, lfo_freq, depth_ms, delay_ms);
 		}
 
 		void OnReset5(UINT, int id, CWindow)

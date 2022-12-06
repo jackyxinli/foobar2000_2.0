@@ -195,6 +195,7 @@ namespace {
 			MSG_WM_INITDIALOG(OnInitDialog)
 			COMMAND_HANDLER_EX(IDC_ECHOENABLED, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
+			COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
@@ -394,6 +395,23 @@ namespace {
 
 		}
 
+		void OnReset5(UINT, int id, CWindow)
+		{
+			Reset();
+		}
+
+		void Reset()
+		{
+			ms = 200; amp = 128, feedback = 128;
+			SetConfig();
+			if (IsEchoEnabled())
+			{
+
+				OnConfigChanged();
+			}
+
+		}
+
 		void SetConfig()
 		{
 			m_slider_ms.SetPos(pfc::clip_t<t_int32>(ms, MSRangeMin, MSRangeMax) - MSRangeMin);
@@ -536,6 +554,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 			MSG_WM_HSCROLL(OnHScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR6, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 
 	private:
@@ -646,6 +665,18 @@ namespace {
 		void OnButton(UINT, int id, CWindow)
 		{
 			EndDialog(id);
+		}
+
+		void OnReset5(UINT, int id, CWindow)
+		{
+			ms = 200; amp = 128, feedback = 128;
+			m_slider_ms.SetPos(pfc::clip_t<t_int32>(ms, MSRangeMin, MSRangeMax) - MSRangeMin);
+			m_slider_amp.SetPos(pfc::clip_t<t_int32>(amp, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
+			m_slider_fb.SetPos(pfc::clip_t<t_int32>(feedback, AmpRangeMin, AmpRangeMax) - AmpRangeMin);
+			dsp_preset_impl preset;
+			dsp_echo::make_preset(ms, amp, feedback, true, preset);
+			m_callback.on_preset_changed(preset);
+			RefreshLabel(ms, amp, feedback);
 		}
 
 		void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)

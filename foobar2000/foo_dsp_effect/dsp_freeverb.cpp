@@ -218,6 +218,7 @@ namespace {
 			COMMAND_HANDLER_EX(IDC_FREEVERBENABLE, BN_CLICKED, OnEnabledToggle)
 			MSG_WM_HSCROLL(OnScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR5, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 
 
@@ -276,6 +277,16 @@ namespace {
 				GetEditText();
 			}
 			return 0;
+		}
+
+
+		void OnReset5(UINT, int id, CWindow)
+		{
+			drytime = 0.43; wettime = 0.57; dampness = 0.45;
+			roomwidth = 0.56; roomsize = 0.56; reverb_enabled = true;
+			SetConfig();
+			if(IsReverbEnabled())
+			OnConfigChanged();
 		}
 
 		void GetEditText()
@@ -594,8 +605,24 @@ namespace {
 			COMMAND_HANDLER_EX(IDCANCEL, BN_CLICKED, OnButton)
 			MSG_WM_HSCROLL(OnHScroll)
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
+			COMMAND_HANDLER_EX(IDC_RESETCHR6, BN_CLICKED, OnReset5)
 		END_MSG_MAP()
 	private:
+
+		void OnReset5(UINT, int id, CWindow)
+		{
+			drytime = 0.43; wettime = 0.57; dampness = 0.45;
+			roomwidth = 0.56; roomsize = 0.56;
+			slider_drytime.SetPos((double)(100 * drytime));
+			slider_wettime.SetPos((double)(100 * wettime));
+			slider_dampness.SetPos((double)(100 * dampness));
+			slider_roomwidth.SetPos((double)(100 * roomwidth));
+			slider_roomsize.SetPos((double)(100 * roomsize));
+			dsp_preset_impl preset;
+			dsp_freeverb::make_preset(drytime, wettime, dampness, roomwidth, roomsize, true, preset);
+			m_callback.on_preset_changed(preset);
+			RefreshLabel(drytime, wettime, dampness, roomwidth, roomsize);
+		}
 
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{

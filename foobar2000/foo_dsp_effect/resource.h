@@ -218,6 +218,7 @@
 #define IDC_RESETCHR5                   1293
 #define IDC_EDIT3                       1293
 #define IDC_EDITECHOVOL                 1293
+#define IDC_RESETCHR6                   1294
 #define IDC_EDITECHODELAYELEM           1300
 #define IDC_EDITECHOVOLELEM             1301
 #define IDC_EDITECHOFEEDBACKELEM        1302
