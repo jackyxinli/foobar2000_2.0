@@ -93,7 +93,7 @@ void revmodel::init(int srate)
 	static const int comb_lengths[8] = { 1116,1188,1277,1356,1422,1491,1557,1617 };
 	static const int allpass_lengths[4] = { 225,341,441,556 };
 
-	double r = srate * (1 / 44100.);
+	int r = (srate * (1 / 44100));
 	if (bufcomb) {
 		for (int c = 0; c < num_comb; ++c)
 		{
