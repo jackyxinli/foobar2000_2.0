@@ -2045,7 +2045,7 @@ class myElem2 : public  ui_element_impl_withpopup< uielem_pitch > {
 
 	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 	{
-		ui_size sz = { 200,100 };
+		defSize = { 200,100 };
 		title = "Pitch DSP";
 		return true;
 	}
@@ -2064,7 +2064,7 @@ class myElem3 : public  ui_element_impl_withpopup< uielem_tempo > {
 
 	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 	{
-		ui_size sz = { 200,100 };
+		defSize = { 200,100 };
 		title = "Tempo DSP";
 		return true;
 	}
