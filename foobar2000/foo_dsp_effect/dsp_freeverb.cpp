@@ -1,6 +1,6 @@
 #include <math.h>
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
@@ -348,7 +348,7 @@ namespace {
 		}
 
 
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		void SetReverbEnabled(bool state) { m_buttonReverbEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsReverbEnabled() { return m_buttonReverbEnabled == NULL || m_buttonReverbEnabled.GetCheck() == BST_CHECKED; }
 
@@ -568,7 +568,7 @@ namespace {
 
 		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 		{
-			ui_size sz = { 200,170 };
+			defSize = { 200,170 };
 			title = "Freeverb DSP";
 			return true;
 		}
@@ -723,6 +723,8 @@ namespace {
 			}
 		}
 
+		fb2k::CCoreDarkModeHooks m_hooks;
+
 		BOOL OnInitDialog(CWindow, LPARAM)
 		{
 			slider_drytime = GetDlgItem(IDC_DRYTIME);
@@ -760,6 +762,7 @@ namespace {
 				RefreshLabel(drytime, wettime, dampness, roomwidth, roomsize);
 
 			}
+			m_hooks.AddDialogWithControls(m_hWnd);
 			return TRUE;
 		}
 

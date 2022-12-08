@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
@@ -285,9 +285,10 @@ namespace {
 			MESSAGE_HANDLER(WM_USER, OnEditControlChange)
 		END_MSG_MAP()
 
-	private:
-		fb2k::CDarkModeHooks m_hooks;
+		
 
+	private:
+		fb2k::CCoreDarkModeHooks m_hooks; 
 
 		void Reset(float drywet, float lfo_freq, float depth_ms, float delay_ms)
 		{
@@ -398,7 +399,6 @@ namespace {
 				slider_drywet.SetPos((double)(100 * drywet));
 				RefreshLabel(delay_ms, depth_ms, lfo_freq, drywet);
 			}
-
 			m_hooks.AddDialogWithControls(m_hWnd);
 
 			return TRUE;
@@ -502,7 +502,7 @@ namespace {
 		// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
 	};
 	static const CRect resizeMinMax(200, 150, 1000, 1000);
-	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance{
+	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance, public ui_element_v2 {
 	public:
 		
 		uielem_chorus(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
@@ -824,7 +824,7 @@ namespace {
 
 
 		uint32_t shit;
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 
 		void RefreshLabel(float delay_ms, float depth_ms, float lfo_freq, float drywet)
 		{
@@ -878,7 +878,7 @@ namespace {
 		}
 		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 		{
-			ui_size sz = { 200,150 };
+			defSize = { 200,150 };
 			title = "Chorus DSP";
 			return true;
 		}

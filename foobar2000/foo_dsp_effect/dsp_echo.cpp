@@ -1,6 +1,6 @@
 #define MYVERSION "0.6"
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../helpers/BumpableElem.h"
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
@@ -468,7 +468,7 @@ namespace {
 			feed_s = sWindowText;
 			feed_edit.SetWindowText(sWindowText);
 		}
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		bool echo_enabled;
 		int ms, amp, feedback;
 		CTrackBarCtrl m_slider_ms, m_slider_amp, m_slider_fb;
@@ -519,7 +519,7 @@ namespace {
 
 		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 		{
-			ui_size sz = { 150,150 };
+			defSize = { 150,150 };
 			title = "Echo DSP";
 			return true;
 		}
@@ -712,7 +712,7 @@ namespace {
 			feed_s = sWindowText;
 			feed_edit.SetWindowText(sWindowText);
 		}
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		const dsp_preset & m_initData; // modal dialog so we can reference this caller-owned object.
 		dsp_preset_edit_callback & m_callback;
 		int ms, amp, feedback;

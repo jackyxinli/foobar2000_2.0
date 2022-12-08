@@ -1,7 +1,7 @@
 
 #define _USE_MATH_DEFINES
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
@@ -292,7 +292,7 @@ namespace {
 			}
 		}
 
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		BOOL OnInitDialog(CWindow, LPARAM)
 		{
 			slider_freq = GetDlgItem(IDC_TREMELOFREQ);
@@ -519,7 +519,7 @@ namespace {
 				
 		}
 
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		void SetEchoEnabled(bool state) { m_buttonEchoEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsEchoEnabled() { return m_buttonEchoEnabled == NULL || m_buttonEchoEnabled.GetCheck() == BST_CHECKED; }
 
@@ -711,7 +711,7 @@ namespace {
 
 		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 		{
-			ui_size sz = { 170,100 };
+			defSize = { 170,100 };
 			title = "Tremelo DSP";
 			return true;
 		}

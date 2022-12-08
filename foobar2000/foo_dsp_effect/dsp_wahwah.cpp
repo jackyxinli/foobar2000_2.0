@@ -1,5 +1,5 @@
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
@@ -305,7 +305,7 @@ namespace {
 			return 0;
 		}
 
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		void SetWahEnabled(bool state) { m_buttonWahEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 		bool IsWahEnabled() { return m_buttonWahEnabled == NULL || m_buttonWahEnabled.GetCheck() == BST_CHECKED; }
 
@@ -581,7 +581,7 @@ namespace {
 
 		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 		{
-			ui_size sz = { 200,160 };
+			defSize = { 200,160 };
 			title = "Wah DSP";
 			return true;
 		}
@@ -648,7 +648,7 @@ namespace {
 			return 0;
 		}
 
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		void DSPConfigChange(dsp_chain_config const & cfg)
 		{
 			if (m_hWnd != NULL) {

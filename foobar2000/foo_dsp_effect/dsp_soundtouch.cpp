@@ -7,7 +7,7 @@
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "circular_buffer.h"
 #include "dsp_guids.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 
 #include <memory>
 
@@ -729,6 +729,8 @@ public:
 
 	END_MSG_MAP()
 private:
+	fb2k::CCoreDarkModeHooks m_hooks;
+
 	void DSPConfigChange(dsp_chain_config const & cfg)
 	{
 		if (m_hWnd != NULL) {
@@ -787,6 +789,7 @@ private:
 			slider_drytime.SetPos((double)(pitch + 1200));
 			RefreshLabel(pitch / 100.00);
 		}
+		m_hooks.AddDialogWithControls(m_hWnd);
 		return TRUE;
 	}
 
@@ -925,6 +928,7 @@ public:
 		COMMAND_HANDLER(IDC_RESET, BN_CLICKED, OnReset);
 	END_MSG_MAP()
 private:
+	fb2k::CCoreDarkModeHooks m_hooks;
 	void DSPConfigChange(dsp_chain_config const & cfg)
 	{
 		if (m_hWnd != NULL) {
@@ -967,7 +971,7 @@ private:
 			slider_drytime.SetPos((double)(pitch + 5000));
 			RefreshLabel(pitch / 100);
 		}
-
+		m_hooks.AddDialogWithControls(m_hWnd);
 		return TRUE;
 	}
 
@@ -1093,7 +1097,7 @@ public:
 	MSG_WM_HSCROLL(OnScroll)
 	END_MSG_MAP()
 private:
-
+	fb2k::CCoreDarkModeHooks m_hooks;
 	BOOL OnInitDialog(CWindow, LPARAM)
 	{
 		slider_drytime = GetDlgItem(IDC_PITCH);
@@ -1111,6 +1115,7 @@ private:
 			slider_drytime.SetPos((double)(tempo2 + 9500));
 			RefreshLabel(pitch);
 		}
+		m_hooks.AddDialogWithControls(m_hWnd);
 		return TRUE;
 	}
 
@@ -1374,7 +1379,7 @@ protected:
 
 private:
 	CDialogResizeHelper m_resizer;
-	fb2k::CDarkModeHooks m_hooks;
+	fb2k::CCoreDarkModeHooks m_hooks;
 	uint32_t shit;
 	float tempo;
 	bool tempo_enabled;
@@ -1588,7 +1593,7 @@ public:
 	}
 private:
 	CDialogResizeHelper m_resizer;
-	fb2k::CDarkModeHooks m_hooks;
+	fb2k::CCoreDarkModeHooks m_hooks;
 	void SetRateEnabled(bool state) { m_buttonRateEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 	bool IsRateEnabled() { return m_buttonRateEnabled == NULL || m_buttonRateEnabled.GetCheck() == BST_CHECKED; }
 	void RateDisable() {
@@ -1843,7 +1848,7 @@ public:
 	}
 private:
 	CDialogResizeHelper m_resizer;
-	fb2k::CDarkModeHooks m_hooks;
+	fb2k::CCoreDarkModeHooks m_hooks;
 
 	void SetPitchEnabled(bool state) { m_buttonPitchEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 	bool IsPitchEnabled() { return m_buttonPitchEnabled == NULL || m_buttonPitchEnabled.GetCheck() == BST_CHECKED; }
@@ -2077,7 +2082,7 @@ class myElem4 : public  ui_element_impl_withpopup< uielem_rate > {
 
 	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 	{
-		ui_size sz = { 200,100 };
+		defSize = { 200,100 };
 		title = "Playback Rate DSP";
 		return true;
 	}

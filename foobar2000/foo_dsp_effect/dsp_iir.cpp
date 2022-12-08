@@ -1,5 +1,5 @@
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
 #include "../helpers/BumpableElem.h"
@@ -181,7 +181,7 @@ namespace {
 		END_MSG_MAP()
 
 	private:
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)
@@ -535,7 +535,7 @@ namespace {
 		}
 
 	private:
-		fb2k::CDarkModeHooks m_hooks;
+		fb2k::CCoreDarkModeHooks m_hooks;
 		LRESULT OnEditControlChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if (wParam == 0x1988)
@@ -860,7 +860,7 @@ namespace {
 
 		bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 		{
-			ui_size sz = { 220,100 };
+			defSize = { 220,100 };
 			title = "IIR Filter";
 			return true;
 		}

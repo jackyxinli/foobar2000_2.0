@@ -1,5 +1,5 @@
 #include "../helpers/foobar2000+atl.h"
-#include "../helpers/DarkMode.h"
+#include <coreDarkMode.h>
 #include "../helpers/BumpableElem.h"
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"
@@ -315,7 +315,7 @@ private:
 	}
 
 
-	fb2k::CDarkModeHooks m_hooks;
+	fb2k::CCoreDarkModeHooks m_hooks;
 	void SetPhaserEnabled(bool state) { m_buttonPhaserEnabled.SetCheck(state ? BST_CHECKED : BST_UNCHECKED); }
 	bool IsPhaserEnabled() { return m_buttonPhaserEnabled == NULL || m_buttonPhaserEnabled.GetCheck() == BST_CHECKED; }
 
@@ -630,7 +630,7 @@ class myElem_t : public  ui_element_impl_withpopup< uielem_phaser > {
 
 	bool get_popup_specs(ui_size& defSize, pfc::string_base& title)
 	{
-		ui_size sz = { 200,240 };
+		defSize = { 200,240 };
 		title = "Phaser DSP";
 		return true;
 	}
@@ -704,7 +704,7 @@ private:
 	}
 
 
-	fb2k::CDarkModeHooks m_hooks;
+	fb2k::CCoreDarkModeHooks m_hooks;
 	void DSPConfigChange(dsp_chain_config const & cfg)
 	{
 		if (m_hWnd != NULL) {
