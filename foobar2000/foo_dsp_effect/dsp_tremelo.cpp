@@ -4,6 +4,7 @@
 #include <coreDarkMode.h>
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
+#include "../SDK/ui_element.h"
 #include "../helpers/BumpableElem.h"
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"

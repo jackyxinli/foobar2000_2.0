@@ -1,6 +1,7 @@
 #include "../helpers/foobar2000+atl.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
+#include "../SDK/ui_element.h"
 #include "../helpers/BumpableElem.h"
 #include "resource.h"
 #include "../../../3rdparty-deps/SoundTouch/SoundTouch.h"

@@ -1,6 +1,7 @@
 #define MYVERSION "0.6"
 #include "../helpers/foobar2000+atl.h"
 #include <coreDarkMode.h>
+#include "../SDK/ui_element.h"
 #include "../helpers/BumpableElem.h"
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "resource.h"

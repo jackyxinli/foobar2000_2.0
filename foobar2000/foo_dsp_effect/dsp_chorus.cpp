@@ -4,6 +4,7 @@
 #include "../../libPPUI/CDialogResizeHelper.h"
 #include "../../libPPUI/win32_utility.h"
 #include "../../libPPUI/win32_op.h" // WIN32_OP()
+#include "../SDK/ui_element.h"
 #include "../helpers/BumpableElem.h"// ui_element_impl
 #include "resource.h"
 #include "dsp_guids.h"
@@ -502,7 +503,7 @@ namespace {
 		// 0,0,1,0 means that the control disregards vertical resize (aligned to top) and changes its width with the dialog
 	};
 	static const CRect resizeMinMax(200, 150, 1000, 1000);
-	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance, public ui_element_v2 {
+	class uielem_chorus : public CDialogImpl<uielem_chorus>, public ui_element_instance {
 	public:
 		
 		uielem_chorus(ui_element_config::ptr cfg, ui_element_instance_callback::ptr cb) : m_callback(cb), m_resizer(chorus_uiresize, resizeMinMax) {
