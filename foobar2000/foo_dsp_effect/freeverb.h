@@ -6,9 +6,11 @@
 
 // FIXME: Fix this really ugly hack
 inline audio_sample undenormalise(audio_sample *sample) {
-	//if (((*(unsigned int*)sample) &  0x7f800000) == 0)
-	//	return 0.0f;
-	return *(float*)sample;
+#ifndef _WIN64
+	if (((*(unsigned int*)sample) &  0x7f800000) == 0)
+		return 0.0f;
+#endif
+	return *(audio_sample*)sample;
 }
 
 
