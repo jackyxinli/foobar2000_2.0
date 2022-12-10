@@ -5,13 +5,12 @@
 #include "../SDK/foobar2000.h"
 
 // FIXME: Fix this really ugly hack
-inline audio_sample undenormalise(audio_sample *sample) {
-#ifndef _WIN64
-	if (((*(unsigned int*)sample) &  0x7f800000) == 0)
+inline float undenormalise(void* sample) {
+	if (((*(unsigned int*)sample) & 0x7f800000) == 0)
 		return 0.0f;
-#endif
-	return *(audio_sample*)sample;
+	return *(float*)sample;
 }
+
 
 
 class comb {
@@ -35,7 +34,7 @@ private:
 };
 
 inline audio_sample comb::process(audio_sample input) {
-	audio_sample output;
+	audio_sample output=0.0;
 
 	output = buffer[bufidx];
 	undenormalise(&output);
@@ -67,8 +66,8 @@ private:
 };
 
 inline audio_sample allpass::process(audio_sample input) {
-	audio_sample output;
-	audio_sample bufout;
+	audio_sample output=0.0;
+	audio_sample bufout=0.0;
 
 	bufout = buffer[bufidx];
 	undenormalise(&bufout);

@@ -39,7 +39,7 @@ allpass::allpass() {
 	bufidx = 0;
 }
 
-void allpass::setbuffer(audio_sample*buf, int size) {
+void allpass::setbuffer(audio_sample *buf, int size) {
 	buffer = buf;
 	bufsize = size;
 }
@@ -107,7 +107,7 @@ void revmodel::init(int srate,bool stereo)
    bufcomb= new audio_sample *[num_comb];
    for (int c = 0; c < num_comb; ++c)
    {
-	   bufcomb[c] = new audio_sample[r*(comb_lengths[c]+ stereosep)];
+	   bufcomb[c] = new audio_sample[r*(comb_lengths[c]+ stereosep)]();
 	   combL[c].setbuffer(bufcomb[c], r*(comb_lengths[c]+ stereosep));
    }
 
@@ -117,14 +117,14 @@ void revmodel::init(int srate,bool stereo)
 		   delete[] bufallpass[a];
 		   bufallpass[a] = NULL;
 	   }
-	   delete[] bufallpass;
+	   delete []bufallpass;
 	   bufallpass = NULL;
    }
    bufallpass = new audio_sample *[num_allpass];
    for (int a = 0;a< num_allpass; ++a)
    {
-	   bufallpass[a] = new audio_sample[r*(allpass_lengths[a]+stereosep)];
-	   allpassL[a].setbuffer(bufallpass[a], r*(allpass_lengths[a]+ stereosep));
+	   bufallpass[a] = new audio_sample[r*(allpass_lengths[a]+stereosep)]();
+	   allpassL[a].setbuffer(bufallpass[a], (r*(allpass_lengths[a]+ stereosep)));
 	   allpassL[a].setfeedback(0.5f);
    }
 	setwet(initialwet);
@@ -133,7 +133,7 @@ void revmodel::init(int srate,bool stereo)
 	setdamp(initialdamp);
 	setwidth(initialwidth);
 	setmode(initialmode);
-	mute();
+	
 }
 
 void revmodel::mute() {
@@ -153,17 +153,19 @@ void revmodel::mute() {
 
 audio_sample revmodel::processsample(audio_sample in)
 {
+	audio_sample samp = in;
 	audio_sample mono_out = 0.0f;
-	audio_sample input = (in) * gain;
-	for(int i=0; i<numcombs; i++)
+	audio_sample mono_in = samp;
+	audio_sample input = (mono_in)*gain;
+	for (int i = 0; i < numcombs; i++)
 	{
 		mono_out += combL[i].process(input);
 	}
-	for(int i=0; i<numallpasses; i++)
+	for (int i = 0; i < numallpasses; i++)
 	{
 		mono_out = allpassL[i].process(mono_out);
 	}
-	audio_sample samp = in * dry + mono_out * wet1;
+	samp = mono_in * dry + mono_out * wet1;
 	return samp;
 }
 

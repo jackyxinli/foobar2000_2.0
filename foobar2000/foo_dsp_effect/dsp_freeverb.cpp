@@ -51,7 +51,6 @@ namespace {
 		float roomsize;
 		bool enabled;
 		pfc::array_t<revmodel> m_buffers;
-		pfc::array_t<float> bufloat;
 	public:
 
 		dsp_freeverb(dsp_preset const & in) : drytime(0.43), wettime(0.57), dampness(0.45), roomwidth(0.56), roomsize(0.56), m_rate(0), m_ch(0), m_ch_mask(0)
