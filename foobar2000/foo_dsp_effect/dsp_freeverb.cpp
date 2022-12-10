@@ -813,9 +813,9 @@ namespace {
 			sWindowText = msg.c_str();
 			roomwidth_s = sWindowText;
 			roomwidth_edit.SetWindowText(sWindowText);
+			msg.reset();
 			msg << pfc::format_int(roomsize * 100);
 			sWindowText = msg.c_str();
-			msg.reset();
 			roomsize_s = sWindowText;
 			roomsize_edit.SetWindowText(sWindowText);
 		}
