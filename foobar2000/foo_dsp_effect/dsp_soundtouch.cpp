@@ -56,6 +56,8 @@ private:
 	HWND m_parent;
 };
 
+
+
 class dsp_pitch : public dsp_impl_base
 {
 	SoundTouch * p_soundtouch;
@@ -64,7 +66,6 @@ class dsp_pitch : public dsp_impl_base
 	bool st_enabled;
 	metadb_handle_ptr current_track;
 	pfc::array_t<float>buf;
-	bool gettrackdata;
 private:
 	void flushchunks()
 	{
@@ -92,7 +93,7 @@ public:
 		p_soundtouch = 0;
 		st_enabled = false;
 		parse_preset(pitch_amount, st_enabled, in);
-		gettrackdata = false;
+
 
 
 		
@@ -103,7 +104,6 @@ public:
 			p_soundtouch->clear();
 			delete p_soundtouch;
 			p_soundtouch = 0;
-			gettrackdata = false;
 		}
 	}
 
@@ -121,13 +121,12 @@ public:
 
 	virtual void on_endoftrack(abort_callback & p_abort) {
 		flushchunks();
-		gettrackdata = false;
+
 	}
 
 	virtual void on_endofplayback(abort_callback & p_abort) {
 		//same as flush, only at end of playback
 		flushchunks();
-		gettrackdata = false;
 	}
 
 	// The framework feeds input to our DSP using this method.
@@ -138,9 +137,6 @@ public:
 		t_size sample_count = chunk->get_sample_count();
 		audio_sample * src = chunk->get_data();
 
-		
-		
-
 		if (pitch_amount == 0.0)
 		{
 			st_enabled = false;
@@ -149,32 +145,13 @@ public:
 		if (!st_enabled)
 		st_enabled = true;
 
-		if (!gettrackdata)
-		{
-			get_cur_file(current_track);
-			if (current_track != NULL) {
-				service_ptr_t<metadb_info_container> out;
-				if (current_track->get_info_ref(out))
-				{
-					const file_info& file_inf = out->info();
-					if (file_inf.meta_exists("pitch_amt"))
-					{
-						const char* meta = file_inf.meta_get("pitch_amt", 0);
-						double pitch2 = pfc::string_to_float(meta, strlen("pitch_amt"));
-						pitch_amount = pitch2;
-					}
-
-				}
-			}
-			gettrackdata = true;
-
-		}
+		
 
 
 		if (chunk->get_srate() != m_rate || chunk->get_channels() != m_ch || chunk->get_channel_config() != m_ch_mask)
 		{
 			flushchunks();
-
+			
 			m_rate = chunk->get_srate();
 			m_ch = chunk->get_channels();
 			m_ch_mask = chunk->get_channel_config();
@@ -246,7 +223,7 @@ public:
 
 
 	virtual bool need_track_change_mark() {
-		return false;
+		return true;
 	}
 
 	static bool g_get_default_preset(dsp_preset & p_out)
@@ -287,7 +264,6 @@ class dsp_tempo : public dsp_impl_base
 	bool st_enabled;
 	pfc::array_t<float>buf;
 	metadb_handle_ptr current_track;
-	bool gettrackdata;
 private:
 	void flushchunks()
 	{
@@ -318,7 +294,6 @@ public:
 		st_enabled = false;
 		pitch_shifter = 0;
 		parse_preset(tempo_amount, st_enabled, in);
-		gettrackdata = false;
 	}
 	~dsp_tempo() {
 
@@ -348,13 +323,11 @@ public:
 	virtual void on_endoftrack(abort_callback & p_abort) {
 	
 		flushchunks();
-		gettrackdata = false;
 	}
 
 	virtual void on_endofplayback(abort_callback & p_abort) {
 		//same as flush, only at end of playback
 		flushchunks();
-		gettrackdata = false;
 	}
 
 	// The framework feeds input to our DSP using this method.
@@ -369,25 +342,6 @@ public:
 		t_size sample_count = chunk->get_sample_count();
 		audio_sample * src = chunk->get_data();
 
-		if (!gettrackdata)
-		{
-			get_cur_file(current_track);
-			if (current_track != NULL) {
-				service_ptr_t<metadb_info_container> out;
-				if (current_track->get_info_ref(out))
-				{
-					const file_info& file_inf = out->info();
-					if (file_inf.meta_exists("tempo_amt"))
-					{
-						const char* meta = file_inf.meta_get("tempo_amt", 0);
-						double pitch2 = pfc::string_to_float(meta, strlen("tempo_amt"));
-						tempo_amount = pitch2;
-					}
-
-				}
-			}
-			gettrackdata = true;
-		}
 
 		if (tempo_amount == 0)
 		{
@@ -542,7 +496,6 @@ public:
 		p_soundtouch = 0;
 		st_enabled = false;
 		parse_preset(pitch_amount, st_enabled, in);
-		gettrackdata = false;
 
 	}
 	~dsp_rate() {
@@ -551,7 +504,6 @@ public:
 			p_soundtouch->clear();
 			delete p_soundtouch;
 			p_soundtouch = 0;
-			gettrackdata = false;
 		}
 
 	}
@@ -575,7 +527,6 @@ public:
 		// This method is called when a track ends.
 		// We need to do the same thing as flush(), so we just call it.
 		flushchunks();
-		gettrackdata = true;
 
 	}
 
@@ -583,7 +534,6 @@ public:
 		// This method is called on end of playback instead of flush().
 		// We need to do the same thing as flush(), so we just call it.
 		flushchunks();
-		gettrackdata = true;
 
 	}
 
@@ -593,25 +543,7 @@ public:
 	// and channel configuration.
 	virtual bool on_chunk(audio_chunk * chunk, abort_callback & p_abort) {
 
-		if (!gettrackdata)
-		{
-			get_cur_file(current_track);
-			if (current_track != NULL) {
-				service_ptr_t<metadb_info_container> out;
-				if (current_track->get_info_ref(out))
-				{
-					const file_info& file_inf = out->info();
-					if (file_inf.meta_exists("pbrate_amt"))
-					{
-						const char* meta = file_inf.meta_get("pbrate_amt", 0);
-						double pitch2 = pfc::string_to_float(meta, strlen("pbrate_amt"));
-						pitch_amount = pitch2;
-					}
-
-				}
-			}
-			gettrackdata = true;
-		}
+		
 
 		if (pitch_amount == 0.0)
 		{
@@ -629,6 +561,7 @@ public:
 				flushchunks();
 				delete p_soundtouch;
 			}
+
 			m_rate = chunk->get_srate();
 			m_ch = chunk->get_channels();
 			m_ch_mask = chunk->get_channel_config();
@@ -638,6 +571,7 @@ public:
 			p_soundtouch->setChannels(m_ch);
 			p_soundtouch->setRateChange(pitch_amount);
 			st_enabled = true;
+
 
 		}
 		if (p_soundtouch && st_enabled)
@@ -2088,6 +2022,106 @@ class myElem4 : public  ui_element_impl_withpopup< uielem_rate > {
 		return true;
 	}
 };
+
+class play_callback_st : public play_callback_static
+{
+	float prev_pitch;
+	bool  prev_pitchb;
+	float prev_temp;
+	bool prev_tempb;
+	float prev_rate;
+	bool prev_rateb;
+	virtual void on_playback_starting(play_control::t_track_command p_command, bool p_paused) {}
+	virtual void on_playback_new_track(metadb_handle_ptr p_track)
+	{
+		service_ptr_t<metadb_info_container> out;
+		dsp_preset_impl preset;
+
+
+		dsp_preset_impl preset2;
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
+			dsp_rate::parse_preset(prev_pitch, prev_pitchb, preset2);
+		}
+
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset2)) {
+			dsp_tempo::parse_preset(prev_temp, prev_tempb, preset2);
+		}
+
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset2)) {
+			dsp_rate::parse_preset(prev_rate, prev_rateb, preset2);
+		}
+
+
+		if (p_track->get_info_ref(out))
+		{
+			const file_info& file_inf = out->info();
+
+
+			if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset)) {
+				if (file_inf.meta_exists("pitch_amt"))
+				{
+					const char* meta = file_inf.meta_get("pitch_amt", 0);
+					double pitch2 = pfc::string_to_float(meta, strlen("pitch_amt"));
+					dsp_pitch::make_preset(pitch2, true, preset);
+					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+				}
+			}
+
+			if (file_inf.meta_exists("tempo_amt"))
+			{
+				const char* meta = file_inf.meta_get("tempo_amt", 0);
+				double pitch2 = pfc::string_to_float(meta, strlen("tempo_amt"));
+				dsp_preset_impl preset;
+				if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset)) {
+					dsp_pitch::make_preset(pitch2, true, preset);
+					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+				}
+
+			}
+
+			if (file_inf.meta_exists("pbrate_amt"))
+			{
+				const char* meta = file_inf.meta_get("pbrate_amt", 0);
+				double pitch2 = pfc::string_to_float(meta, strlen("pbrate_amt"));
+				dsp_preset_impl preset;
+				if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset)) {
+					dsp_rate::make_preset(pitch2, true, preset);
+					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+				}
+
+			}
+		}
+		}
+	virtual void on_playback_stop(play_control::t_stop_reason p_reason) {
+		dsp_preset_impl preset2;
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
+			dsp_pitch::make_preset(prev_pitch, prev_pitchb, preset2);
+		}
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset2)) {
+			dsp_pitch::make_preset(prev_temp, prev_tempb, preset2);
+		}
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
+			dsp_pitch::make_preset(prev_rate, prev_rateb, preset2);
+		}
+
+
+	}
+	virtual void on_playback_seek(double p_time) {}
+	virtual void on_playback_pause(bool p_state) {}
+	virtual void on_playback_edited(metadb_handle_ptr p_track) {}
+	virtual void on_playback_dynamic_info(const file_info& info) {}
+	virtual void on_playback_dynamic_info_track(const file_info& info) {}
+	virtual void on_playback_time(double p_time) {}
+	virtual void on_volume_change(float p_new_val) {};
+
+	virtual unsigned get_flags()
+	{
+		return flag_on_playback_new_track|flag_on_playback_stop;
+	}
+};
+static play_callback_static_factory_t<play_callback_st> mirc_callback_factory;
+
+
 static service_factory_single_t<myElem2> g_myElemFactory2;
 static service_factory_single_t<myElem3> g_myElemFactory3;
 static service_factory_single_t<myElem4> g_myElemFactory4;

@@ -1,7 +1,7 @@
 #include "../SDK/foobar2000.h"
 #include "../../../3rdparty-deps/SoundTouch/SoundTouch.h"
 #include "dsp_guids.h"
-#define MYVERSION "0.50 beta 4"
+#define MYVERSION "0.50 beta 5"
 
 static pfc::string_formatter g_get_component_about()
 {
@@ -10,7 +10,7 @@ static pfc::string_formatter g_get_component_about()
 	about << "Written by mudlord.\n";
 	about << "Github:  https://github.com/mudlord\n";
 	about << "\n";
-	about << "Portions by Jon Watte, Jezar Wakefield, Chris Snowhill.\n";
+	about << "Portions by Jon Watte, Jezar Wakefield.\n";
 	about << "Using SoundTouch library version " << SOUNDTOUCH_VERSION << "\n";
 	about << "SoundTouch (c) Olli Parviainen\n";
 	about << "\n";
