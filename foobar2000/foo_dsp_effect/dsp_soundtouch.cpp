@@ -2027,6 +2027,9 @@ class play_callback_st : public play_callback_static
 {
 	float prev_pitch;
 	bool  prev_pitchb;
+	bool prev_bak = true;
+	bool prev_bak2 = true;
+	bool prev_bak3 = true;
 	float prev_temp;
 	bool prev_tempb;
 	float prev_rate;
@@ -2035,80 +2038,104 @@ class play_callback_st : public play_callback_static
 	virtual void on_playback_new_track(metadb_handle_ptr p_track)
 	{
 		service_ptr_t<metadb_info_container> out;
-		dsp_preset_impl preset;
-
-
 		dsp_preset_impl preset2;
-		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
-			dsp_rate::parse_preset(prev_pitch, prev_pitchb, preset2);
-		}
+		dsp_preset_impl preset3;
+		dsp_preset_impl preset4;
+		
 
-		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset2)) {
-			dsp_tempo::parse_preset(prev_temp, prev_tempb, preset2);
-		}
 
-		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset2)) {
-			dsp_rate::parse_preset(prev_rate, prev_rateb, preset2);
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset4)) {
+			dsp_rate::parse_preset(prev_rate, prev_rateb, preset4);
 		}
 
 
 		if (p_track->get_info_ref(out))
 		{
 			const file_info& file_inf = out->info();
+			
 
-
-			if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset)) {
 				if (file_inf.meta_exists("pitch_amt"))
 				{
+					if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
+						dsp_pitch::parse_preset(prev_pitch, prev_pitchb, preset2);
+						prev_bak = true;
+					}
+					dsp_preset_impl preset;
 					const char* meta = file_inf.meta_get("pitch_amt", 0);
 					double pitch2 = pfc::string_to_float(meta, strlen("pitch_amt"));
 					dsp_pitch::make_preset(pitch2, true, preset);
 					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
 				}
-			}
-
-			if (file_inf.meta_exists("tempo_amt"))
-			{
-				const char* meta = file_inf.meta_get("tempo_amt", 0);
-				double pitch2 = pfc::string_to_float(meta, strlen("tempo_amt"));
-				dsp_preset_impl preset;
-				if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset)) {
-					dsp_pitch::make_preset(pitch2, true, preset);
-					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+				else
+				{
+					prev_bak = false;
 				}
 
-			}
+				if (file_inf.meta_exists("tempo_amt"))
+				{
+					if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset3)) {
+						dsp_tempo::parse_preset(prev_temp, prev_tempb, preset3);
+						prev_bak2 = true;
+					}
 
-			if (file_inf.meta_exists("pbrate_amt"))
-			{
-				const char* meta = file_inf.meta_get("pbrate_amt", 0);
-				double pitch2 = pfc::string_to_float(meta, strlen("pbrate_amt"));
-				dsp_preset_impl preset;
-				if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset)) {
-					dsp_rate::make_preset(pitch2, true, preset);
-					static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+					const char* meta = file_inf.meta_get("tempo_amt", 0);
+					double pitch2 = pfc::string_to_float(meta, strlen("tempo_amt"));
+					dsp_preset_impl preset;
+					if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset)) {
+						dsp_tempo::make_preset(pitch2, true, preset);
+						static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+					}
+
 				}
+				else prev_bak2 = false;
 
-			}
+				if (file_inf.meta_exists("pbrate_amt"))
+				{
+					if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset4)) {
+						dsp_tempo::parse_preset(prev_rate, prev_rateb, preset4);
+						prev_bak3 = true;
+					}
+
+
+					const char* meta = file_inf.meta_get("pbrate_amt", 0);
+					double pitch2 = pfc::string_to_float(meta, strlen("pbrate_amt"));
+					dsp_preset_impl preset;
+					if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset)) {
+						dsp_rate::make_preset(pitch2, true, preset);
+						static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset, dsp_config_manager::default_insert_last);
+					}
+
+				}
+				else prev_bak3 = false;
 		}
 		}
 	virtual void on_playback_stop(play_control::t_stop_reason p_reason) {
 		dsp_preset_impl preset2;
-		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
+		dsp_preset_impl preset3;
+		dsp_preset_impl preset4;
+
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2) && prev_bak) {
 			dsp_pitch::make_preset(prev_pitch, prev_pitchb, preset2);
+			prev_bak = false;
+			static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset2, dsp_config_manager::default_insert_last);
 		}
-		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset2)) {
-			dsp_pitch::make_preset(prev_temp, prev_tempb, preset2);
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_tempo, preset3)) {
+			prev_bak2 = false;
+			dsp_tempo::make_preset(prev_temp, prev_tempb, preset3);
+			static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset3, dsp_config_manager::default_insert_last);
 		}
-		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pitch, preset2)) {
-			dsp_pitch::make_preset(prev_rate, prev_rateb, preset2);
+		if (static_api_ptr_t<dsp_config_manager>()->core_query_dsp(guid_pbrate, preset4)) {
+			prev_bak3 = false;
+			dsp_rate::make_preset(prev_rate, prev_rateb, preset4);
+			static_api_ptr_t<dsp_config_manager>()->core_enable_dsp(preset4, dsp_config_manager::default_insert_last);
 		}
 
 
 	}
 	virtual void on_playback_seek(double p_time) {}
 	virtual void on_playback_pause(bool p_state) {}
-	virtual void on_playback_edited(metadb_handle_ptr p_track) {}
+	virtual void on_playback_edited(metadb_handle_ptr p_track) {
+	}
 	virtual void on_playback_dynamic_info(const file_info& info) {}
 	virtual void on_playback_dynamic_info_track(const file_info& info) {}
 	virtual void on_playback_time(double p_time) {}
@@ -2116,7 +2143,8 @@ class play_callback_st : public play_callback_static
 
 	virtual unsigned get_flags()
 	{
-		return flag_on_playback_new_track|flag_on_playback_stop;
+		return flag_on_playback_new_track | flag_on_playback_stop
+	;
 	}
 };
 static play_callback_static_factory_t<play_callback_st> mirc_callback_factory;

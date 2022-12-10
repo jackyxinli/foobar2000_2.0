@@ -282,11 +282,11 @@ namespace {
 		{
 
 			pitch_edit.AttachToDlgItem(m_hWnd);
-			pitch_edit.SubclassWindow(GetDlgItem(IDC_IIRQ));
+			pitch_edit.SubclassWindow(GetDlgItem(IDC_IIRQ1));
 			freq_edit.AttachToDlgItem(m_hWnd);
-			freq_edit.SubclassWindow(GetDlgItem(IDC_IIRFREQEDIT2));
+			freq_edit.SubclassWindow(GetDlgItem(IDC_IIRFREQEDIT1));
 			gain_edit.AttachToDlgItem(m_hWnd);
-			gain_edit.SubclassWindow(GetDlgItem(IDC_IIRGAINEDIT));
+			gain_edit.SubclassWindow(GetDlgItem(IDC_IIRGAINEDIT1));
 			slider_freq = GetDlgItem(IDC_IIRFREQ);
 			slider_freq.SetRangeMin(0);
 			slider_freq.SetRangeMax(FreqMax);

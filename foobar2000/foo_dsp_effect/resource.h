@@ -195,9 +195,12 @@
 #define IDC_IIRQ1                       1201
 #define IDC_RESET2                      1202
 #define IDC_IIRQGAINEDIT1               1202
+#define IDC_IIRGAINEDIT1                1202
 #define IDC_PITCH_EDIT3                 1203
 #define IDC_IIRQGAINEDIT2               1203
 #define IDC_IIRQFREQEDIT1               1203
+#define IDC_FREQEDIT1                   1203
+#define IDC_IIRFREQEDIT1                1203
 #define IDC_PITCHINFO_UI6               1204
 #define IDC_TEMPOTYPE_UI3               1206
 #define IDC_RESET3                      1207
