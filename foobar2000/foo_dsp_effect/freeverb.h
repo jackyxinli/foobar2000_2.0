@@ -6,8 +6,8 @@
 
 // FIXME: Fix this really ugly hack
 inline audio_sample undenormalise(audio_sample *sample) {
-	if (((*(unsigned int*)sample) &  0x7f800000) == 0)
-		return 0.0f;
+	//if (((*(unsigned int*)sample) &  0x7f800000) == 0)
+	//	return 0.0f;
 	return *(float*)sample;
 }
 
@@ -107,7 +107,7 @@ public:
 	revmodel();
 	~revmodel();
 	void mute();
-	void init(int srate);
+	void init(int srate,bool stereo);
 	audio_sample revmodel::processsample(audio_sample in);
 	void setroomsize(float value);
 	float getroomsize();

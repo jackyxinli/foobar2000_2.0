@@ -51,6 +51,7 @@ namespace {
 		float roomsize;
 		bool enabled;
 		pfc::array_t<revmodel> m_buffers;
+		pfc::array_t<float> bufloat;
 	public:
 
 		dsp_freeverb(dsp_preset const & in) : drytime(0.43), wettime(0.57), dampness(0.45), roomwidth(0.56), roomsize(0.56), m_rate(0), m_ch(0), m_ch_mask(0)
@@ -78,7 +79,7 @@ namespace {
 				for (unsigned i = 0; i < m_ch; i++)
 				{
 					revmodel & e = m_buffers[i];
-					e.init(m_rate);
+					e.init(m_rate,i==1);
 					e.setwet(wettime);
 					e.setdry(drytime);
 					e.setdamp(dampness);
@@ -86,18 +87,19 @@ namespace {
 					e.setwidth(roomwidth);
 				}
 			}
+
 			for (unsigned i = 0; i < m_ch; i++)
 			{
-				revmodel & e = m_buffers[i];
-				audio_sample * data = chunk->get_data() + i;
+				revmodel& e = m_buffers[i];
+				audio_sample* data = chunk->get_data() + i;
 				for (unsigned j = 0, k = chunk->get_sample_count(); j < k; j++)
 				{
 					*data = e.processsample(*data);
 					data += m_ch;
 				}
 			}
-
 			return true;
+			
 		}
 		void on_endofplayback(abort_callback &) { }
 		void on_endoftrack(abort_callback &) { }
